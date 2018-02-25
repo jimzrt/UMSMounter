@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.james.myapplication.MainActivity">
+    <item
+        android:id="@+id/action_revert"
+        android:orderInCategory="100"
+        android:title="@string/action_revert" />
+    <item
+        android:id="@+id/action_check_dependencies"
+        android:title="@string/check_dependencies" />
+</menu>

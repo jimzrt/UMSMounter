@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">UMS Mounter</string>
+    <string name="action_revert">Set to mtp,adb</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="check_dependencies">Check dependencies...</string>
+</resources>

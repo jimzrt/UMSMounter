@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_logo"
+            android:title="UMS Mounter" />
+        <item
+            android:id="@+id/nav_create_image"
+            android:icon="@drawable/ic_mass_storage"
+            android:title="Create Image" />
+        <item
+            android:id="@+id/nav_download_image"
+            android:icon="@android:drawable/ic_menu_slideshow"
+            android:title="Download Image" />
+        <item
+            android:id="@+id/nav_credits"
+            android:icon="@android:drawable/ic_menu_manage"
+            android:title="Credits" />
+    </group>
+</menu>
