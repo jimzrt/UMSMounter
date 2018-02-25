@@ -1,5 +1,4 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="70dp"
     android:orientation="vertical"
@@ -14,7 +13,8 @@
         android:layout_alignParentTop="true"
 
         android:layout_centerVertical="true"
-        android:src="@drawable/ic_mass_storage" />
+        android:src="@drawable/ic_mass_storage"
+        android:tint="@color/colorAccent" />
 
 
     <TextView
@@ -25,8 +25,7 @@
         android:layout_marginStart="18dp"
         android:layout_toEndOf="@+id/item_info"
         android:text="Marshmallow"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@android:color/black" />
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
 
     <TextView
@@ -39,8 +38,7 @@
 
         android:layout_toEndOf="@+id/item_info"
 
-        android:text="Android 6.0"
-        android:textColor="@android:color/black" />
+        android:text="Android 6.0" />
 
     <ToggleButton
         android:id="@+id/mountButton"

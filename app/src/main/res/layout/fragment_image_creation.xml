@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_image_creation"
-    android:tag="fragment_image_creation"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_image_creation"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/background_light">
+    android:tag="fragment_image_creation">
 
     <Button
         android:id="@+id/createImageButton"
@@ -28,6 +26,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="32dp"
         android:ems="10"
+        android:hint="Image Name"
         android:inputType="textPersonName"
         android:text="Drive"
         app:layout_constraintEnd_toEndOf="parent"
@@ -52,6 +51,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:ems="10"
+        android:hint="Image Size"
         android:inputType="number"
         android:text="1024"
         app:layout_constraintEnd_toEndOf="parent"
