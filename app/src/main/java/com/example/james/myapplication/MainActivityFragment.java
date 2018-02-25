@@ -1,25 +1,19 @@
 package com.example.james.myapplication;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
-import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.RotateAnimation;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -27,10 +21,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.example.james.myapplication.Model.CheckBusyboxTask;
-import com.example.james.myapplication.Model.CheckFolderTask;
-import com.example.james.myapplication.Model.CheckMassStorageTask;
-import com.example.james.myapplication.Model.CheckRootTask;
 import com.example.james.myapplication.Model.ImageItem;
 import com.example.james.myapplication.Model.ImageListAdapter;
 import com.example.james.myapplication.Model.MountImageTask;
@@ -38,11 +28,9 @@ import com.example.james.myapplication.Model.Task;
 import com.example.james.myapplication.Model.UnmountingTask;
 import com.example.james.myapplication.Utils.BackgroundTask;
 import com.example.james.myapplication.Utils.Helper;
-import com.example.james.myapplication.Utils.PathResolver;
 import com.topjohnwu.superuser.Shell;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -94,7 +82,6 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
         }
         Collections.sort(list);
         SharedPreferences sharedPref = getContext().getSharedPreferences(null,Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
         TextView textMode = view.findViewById(R.id.textMode);
         textMode.setText(sharedPref.getString("usbMode", "Not Supported"));
 
@@ -103,7 +90,7 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(adapter);
         adapter.addAll(list);
-        List<String> modes = Arrays.asList("Writable USB", "Read-only USB");
+        List<String> modes = new ArrayList<>(Arrays.asList("Writable USB", "Read-only USB"));
         if(sharedPref.getBoolean("cdrom", false)){
             modes.add("CD-ROM");
         }
@@ -254,7 +241,7 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
                 dialog.show();
             }
             // ((TextView)findViewById(R.id.editText)).append(result);
-        }).setTasks(new Task[]{new MountImageTask(imageItem, usbMode.getSelectedItem().toString())}).execute();
+        }).setTasks(new Task[]{new MountImageTask(imageItem, usbMode.getSelectedItem().toString(), getContext())}).execute();
 
     }
 
@@ -289,9 +276,7 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
         AlertDialog.Builder adb = new AlertDialog.Builder(getActivity());
 
 
-
-
-        adb.setTitle("Title of alert dialog");
+        adb.setTitle("Delete");
 
 
         adb.setIcon(android.R.drawable.ic_dialog_alert);

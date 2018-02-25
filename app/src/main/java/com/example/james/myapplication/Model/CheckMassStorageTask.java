@@ -3,12 +3,7 @@ package com.example.james.myapplication.Model;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.example.james.myapplication.MainActivity;
-import com.example.james.myapplication.Utils.BackgroundTask;
-
 import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 public class CheckMassStorageTask extends Task{
 
@@ -35,7 +30,13 @@ public class CheckMassStorageTask extends Task{
                     this.result = "mass_storage via configfs supported!\n";
                     this.successful = true;
                     editor.putString("usbMode", "configfs");
-                    editor.commit();
+                    File cdrom = new File("/config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom");
+                    if (cdrom.exists()) {
+                        editor.putBoolean("cdrom", true);
+                    } else {
+                        editor.putBoolean("cdrom", false);
+                    }
+                    editor.apply();
                 } else if(usbDir.exists() && usbDir.isDirectory()) {
                     this.result = "mass_storage via android_usb supported!\n";
                     editor.putString("usbMode", "android_usb");
@@ -46,7 +47,7 @@ public class CheckMassStorageTask extends Task{
                         editor.putBoolean("cdrom", false);
                     }
                     this.successful = true;
-                    editor.commit();
+                    editor.apply();
 
                 }else {
                     this.successful = false;

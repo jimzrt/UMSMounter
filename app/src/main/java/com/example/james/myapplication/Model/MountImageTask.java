@@ -1,10 +1,10 @@
 package com.example.james.myapplication.Model;
 
-import android.util.Log;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import com.topjohnwu.superuser.Shell;
 
-import java.io.File;
 import java.util.List;
 
 
@@ -13,12 +13,14 @@ public class MountImageTask extends Task {
 
     private ImageItem imageItem;
     private String mode;
+    private Context ctx;
 
-    public MountImageTask(ImageItem imageItem, String mode) {
+    public MountImageTask(ImageItem imageItem, String mode, Context ctx) {
         this.name = "Mounting";
         this.description = "Mounting " + imageItem.getName() + " in " + mode.toLowerCase() + " mode...";
         this.imageItem = imageItem;
         this.mode = mode;
+        this.ctx = ctx;
     }
 
 
@@ -52,23 +54,26 @@ public class MountImageTask extends Task {
         }
 
 
-        File configsPath = new File("/config/usb_gadget/g1/functions/mass_storage.0/lun.0");
-        if(configsPath.exists() && false){
+        SharedPreferences sharedPref = ctx.getSharedPreferences(null, Context.MODE_PRIVATE);
+        String usbMode = sharedPref.getString("usbMode", "Not supported");
 
-            Shell.Sync.sh(new String[]{"setprop sys.usb.config none",
+
+        // File configsPath = new File("/config/usb_gadget/g1/functions/mass_storage.0/lun.0");
+        if (usbMode.equals("configfs")) {
+
+            Shell.Sync.sh("setprop sys.usb.config none",
                     "echo \"\" > /config/usb_gadget/g1/UDC",
                     "echo " + removable + " > /config/usb_gadget/g1/functions/mass_storage.0/lun.0/removable",
                     "echo " + ro + " > /config/usb_gadget/g1/functions/mass_storage.0/lun.0/ro",
                     "echo " + cdrom + " > /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom",
                     "echo \"" + imageItem.getRootPath() + "\" > /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file",
-                    "setprop sys.usb.config mass_storage"});
+                    "setprop sys.usb.config mass_storage");
             this.result = imageItem.getName() + " mounted!\n";
             this.successful = true;
 
-        } else {
+        } else if (usbMode.equals("android_usb")) {
             String usb = "/sys/class/android_usb/android0";
-            List<String> test = Shell.Sync.sh(new String[]{
-                    "setprop sys.usb.config none",
+            List<String> test = Shell.Sync.sh("setprop sys.usb.config none",
                     "echo > " + usb + "/f_mass_storage/lun/file",
                     // "echo 0 > " + usb + "/enable",
                     //  "echo mass_storage > " + usb + "/functions",
@@ -79,14 +84,13 @@ public class MountImageTask extends Task {
                     ///  "echo " + cdrom + " > " + usb + "/f_mass_storage/lun/cdrom",
                     "echo " + imageItem.getRootPath() + " > " + usb + "/f_mass_storage/lun/file",
                     // "echo 1 > " + usb + "/enable"
-                    "setprop sys.usb.config mass_storage"
-            });
+                    "setprop sys.usb.config mass_storage");
 
-            for(String lala : test){
-                Log.i("lala", lala);
-            }
             this.result = imageItem.getName() + " mounted!\n";
             this.successful = true;
+        } else {
+            this.result = "not mounted!\n";
+            this.successful = false;
         }
 
 
