@@ -39,13 +39,13 @@
         app:layout_constraintTop_toBottomOf="@+id/buttonRefresh"
         app:layout_constraintVertical_chainStyle="spread_inside">
 
-    <ListView
+        <android.support.v7.widget.RecyclerView
         android:id="@+id/listview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         >
 
-    </ListView>
+        </android.support.v7.widget.RecyclerView>
 
     </android.support.v4.widget.SwipeRefreshLayout>
 

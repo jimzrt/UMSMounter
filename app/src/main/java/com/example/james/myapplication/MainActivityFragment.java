@@ -8,6 +8,9 @@ import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +18,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,9 +33,12 @@ import com.example.james.myapplication.Utils.Helper;
 import com.topjohnwu.superuser.Shell;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -51,10 +56,8 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
 
     private View view;
     private ImageButton refreshButton;
+    private boolean populate;
 
-    public ImageListAdapter getListViewAdapter() {
-        return (ImageListAdapter)listView.getAdapter();
-    }
 
     public ToggleButton toggleButton;
 
@@ -63,43 +66,52 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
 
     private String functionMode="mtp,adb";
     // TextView logView = null;
-    ListView listView = null;
+    RecyclerView listView = null;
+    ImageListAdapter listViewAdapter = null;
     Spinner usbMode = null;
+    ArrayAdapter<String> usbModeAdapter = null;
 
-    public MainActivityFragment() {
+    @Override
+    public void onActivityCreated(Bundle bundle) {
+        super.onActivityCreated(bundle);
+        if (populate) {
+            populateList();
+            populate = false;
+        }
     }
 
     public void populateList() {
         String path = Environment.getExternalStorageDirectory().toString()+ROOTDIR;
         File f = new File(path);
 
+
         File files[] = f.listFiles();
-        final ArrayList<ImageItem> list = new ArrayList<>();
         if(files != null) {
             for (File file : files) {
-                list.add(new ImageItem(file.getName(), ROOTPATH + "/" + file.getName(),USERPATH + "/" + file.getName(), Helper.humanReadableByteCount(file.length())));
+                ImageItem item = new ImageItem(file.getName(), ROOTPATH + "/" + file.getName(), USERPATH + "/" + file.getName(), Helper.humanReadableByteCount(file.length()));
+                if (!listViewAdapter.contains(item)) {
+                    listViewAdapter.addItem(item);
+                }
             }
         }
-        Collections.sort(list);
+
         SharedPreferences sharedPref = getContext().getSharedPreferences(null,Context.MODE_PRIVATE);
         TextView textMode = view.findViewById(R.id.textMode);
         textMode.setText(sharedPref.getString("usbMode", "Not Supported"));
 
 
-        ImageListAdapter adapter = new ImageListAdapter(new ArrayList<>(), getContext(), this);
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(adapter);
-        adapter.addAll(list);
+        // use a linear layout manager
+        //   listViewAdapter.addItems(list);
+
+        //listView.setOnItemClickListener(adapter);
+        //adapter.addAll(list);
         List<String> modes = new ArrayList<>(Arrays.asList("Writable USB", "Read-only USB"));
         if(sharedPref.getBoolean("cdrom", false)){
             modes.add("CD-ROM");
         }
 
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item,
-                modes);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        //  spinnerAdapter.notifyDataSetChanged();
-        usbMode.setAdapter(spinnerAdapter);
+        usbModeAdapter.clear();
+        usbModeAdapter.addAll(modes);
         usbMode.setSelection(0);
 
     }
@@ -131,7 +143,28 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
 
         ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("UMS Mounter");
         listView = view.findViewById(R.id.listview);
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
+        listView.setLayoutManager(mLayoutManager);
+
+        listViewAdapter = new ImageListAdapter(new ArrayList<>(), getContext(), this);
+        listView.setAdapter(listViewAdapter);
+        listView.setHasFixedSize(true);
+        listView.getItemAnimator().setChangeDuration(0);
+        listView.getItemAnimator().setAddDuration(500);
+        listView.getItemAnimator().setMoveDuration(500);
+        listView.getItemAnimator().setRemoveDuration(500);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(listView.getContext(),
+                mLayoutManager.getOrientation());
+        listView.addItemDecoration(dividerItemDecoration);
+
+
         usbMode = view.findViewById(R.id.spinner);
+
+        usbModeAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item,
+                new ArrayList<>());
+        usbModeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //  spinnerAdapter.notifyDataSetChanged();
+        usbMode.setAdapter(usbModeAdapter);
 
 
        // ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -157,7 +190,7 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
                     toggleButton.setChecked(false);
                     return;
                 }
-                ImageItem imageItem = ((ImageItem)listView.getItemAtPosition(checkedItemPosition));
+                ImageItem imageItem = ((ImageListAdapter) listView.getAdapter()).getItemAtPosition(checkedItemPosition);
 
                mount(imageItem);
 
@@ -183,18 +216,15 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
 
 
         SwipeRefreshLayout mySwipeRefreshLayout = view.findViewById(R.id.swiperefresh);
-        mySwipeRefreshLayout.setOnRefreshListener(
-                new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
 
-                        populateList();
-                        mySwipeRefreshLayout.setRefreshing(false);
-                        Toast.makeText(getContext(),"List updated!", Toast.LENGTH_LONG).show();
-                    }
+        mySwipeRefreshLayout.setOnRefreshListener(
+                () -> {
+
+                    populateList();
+                    mySwipeRefreshLayout.setRefreshing(false);
+                    Toast.makeText(getContext(), "List updated!", Toast.LENGTH_LONG).show();
                 }
         );
-
 
 
         return view;
@@ -257,10 +287,10 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
             toggleButton.setChecked(false);
         } else if(mountedItemPosition != -1){
             unmount(functionMode);
-            mount(((ImageItem)listView.getItemAtPosition(checkedItemPosition)));
+            mount(((ImageListAdapter) listView.getAdapter()).getItemAtPosition(checkedItemPosition));
             toggleButton.setChecked(true);
         }else {
-            mount(((ImageItem)listView.getItemAtPosition(checkedItemPosition)));
+            mount(((ImageListAdapter) listView.getAdapter()).getItemAtPosition(checkedItemPosition));
             toggleButton.setChecked(true);
         }
 
@@ -271,7 +301,7 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
     public void onDeleteImageButtonClicked() {
 
         int checkedItemPosition = ((ImageListAdapter)listView.getAdapter()).getSelectedItemPosition();
-        ImageItem checkedItem = ((ImageItem)listView.getItemAtPosition(checkedItemPosition));
+        ImageItem checkedItem = ((ImageListAdapter) listView.getAdapter()).getItemAtPosition(checkedItemPosition);
 
         AlertDialog.Builder adb = new AlertDialog.Builder(getActivity());
 
@@ -289,7 +319,7 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
             Toast.makeText(getContext(), "Deleted!", Toast.LENGTH_SHORT).show();
             ((ImageListAdapter)listView.getAdapter()).setSelectedItemPosition(-1);
             ((ImageListAdapter)listView.getAdapter()).remove(checkedItem);
-            ((ImageListAdapter)listView.getAdapter()).notifyDataSetChanged();
+            //    ((ImageListAdapter)listView.getAdapter()).notifyItemRemoved(checkedItemPosition);
         });
 
 
@@ -297,5 +327,119 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
         adb.show();
 
 
+    }
+
+    public void createImage(String destFile) {
+
+
+        ImageItem item = null;
+        int index = -1;
+        for (int i = 0; i < listView.getAdapter().getItemCount(); i++) {
+            if (((ImageListAdapter) listView.getAdapter()).getItemAtPosition(i).getUserPath().equals(destFile)) {
+                item = ((ImageListAdapter) listView.getAdapter()).getItemAtPosition(i);
+                index = i;
+                break;
+            }
+        }
+
+        if (item != null) {
+            item.setDownloading(true);
+        }
+        ImageItem finalItem = item;
+        int finalIndex = index;
+
+        final int[] oldProgress = {0};
+        Thread createImageThread = new Thread(() -> {
+            try {
+
+                String sourceFile = getContext().getCacheDir().getAbsolutePath() + "/fat.img";
+                FileInputStream fis = null;
+                FileOutputStream fos = null;
+                long size = 0;
+
+                try {
+                    fis = new FileInputStream(sourceFile);
+                    fos = new FileOutputStream(destFile, true);
+
+                    size = fis.getChannel().size() + fos.getChannel().size();
+                    byte[] buffer = new byte[1024 * 512];
+                    long pos = (int) Math.ceil(fos.getChannel().size() / buffer.length);
+
+                    int noOfBytes = 0;
+
+                    System.out.println("Copying file using streams");
+
+                    // read bytes from source file and write to destination file
+                    while ((noOfBytes = fis.read(buffer)) != -1) {
+                        // if(pos % 4 == 0){
+
+                        pos += 1;
+
+                        long finalPos = pos;
+                        if (finalItem != null) {
+                            int progress = (int) ((finalPos * buffer.length * 100l) / size);
+                            finalItem.setProgress(progress);
+                            finalItem.setSize(Helper.humanReadableByteCount((finalPos * buffer.length)));
+                            if ((progress - oldProgress[0]) > 1) {
+                                oldProgress[0] = progress;
+
+                                getActivity().runOnUiThread(() -> {
+                                    listView.getAdapter().notifyItemChanged(finalIndex, "download");
+                                });
+                            }
+
+
+                        }
+
+
+                        fos.write(buffer, 0, noOfBytes);
+                    }
+                } catch (FileNotFoundException e) {
+                    System.out.println("File not found" + e);
+                } catch (IOException ioe) {
+                    System.out.println("Exception while copying file " + ioe);
+                } finally {
+                    // close the streams using close method
+                    try {
+                        if (fis != null) {
+                            fis.close();
+                        }
+                        if (fos != null) {
+                            fos.close();
+                        }
+                    } catch (IOException ioe) {
+                        System.out.println("Error while closing stream: " + ioe);
+                    }
+
+                    File src = new File(sourceFile);
+                    src.delete();
+
+
+                }
+
+
+                //
+                long finalSize = size;
+                getActivity().runOnUiThread(() -> {
+                    Toast.makeText(getActivity(), "Image successfully created", Toast.LENGTH_LONG).show();
+                    finalItem.setDownloading(false);
+                    finalItem.setSize(Helper.humanReadableByteCount(finalSize));
+                    ((ImageListAdapter) listView.getAdapter()).setSelectedItemPosition(finalIndex);
+                    listViewAdapter.notifyItemChanged(finalIndex, "download");
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        createImageThread.setDaemon(true);
+        createImageThread.start();
+
+
+        // ((ImageListAdapter)listView.getAdapter()).notifyDataSetChanged();
+    }
+
+    public void setPopulate(boolean populate) {
+        this.populate = populate;
     }
 }

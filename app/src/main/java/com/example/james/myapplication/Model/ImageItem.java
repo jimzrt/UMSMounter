@@ -1,11 +1,27 @@
 package com.example.james.myapplication.Model;
 
-import android.support.annotation.NonNull;
 
 public class ImageItem implements Comparable<ImageItem> {
     private String name;
     private String rootPath;
     private String userPath;
+    private boolean downloading;
+    private int progress;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ImageItem imageItem = (ImageItem) o;
+
+        return name != null ? name.equals(imageItem.name) : imageItem.name == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
 
     public String getSize() {
         return size;
@@ -62,7 +78,29 @@ public class ImageItem implements Comparable<ImageItem> {
     }
 
     @Override
-    public int compareTo(@NonNull ImageItem o) {
+    public int compareTo(ImageItem o) {
         return this.name.compareTo(o.name);
     }
+
+    public boolean isDownloading() {
+        return downloading;
+    }
+
+    public void setDownloading(boolean downloading) {
+        this.downloading = downloading;
+    }
+
+    public int getProgress() {
+        return progress;
+    }
+
+    public void setProgress(int progress) {
+        this.progress = progress;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+
 }

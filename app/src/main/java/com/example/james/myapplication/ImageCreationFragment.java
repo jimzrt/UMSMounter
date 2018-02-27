@@ -2,27 +2,18 @@ package com.example.james.myapplication;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.os.Handler;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.james.myapplication.Utils.Helper;
 import com.topjohnwu.superuser.Shell;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 /**
  * Created by james on 23.02.18.
@@ -31,7 +22,7 @@ import java.io.IOException;
 public class ImageCreationFragment extends Fragment {
 
     public interface OnImageCreationListener {
-        void OnImageCreation();
+        void OnImageCreation(String imageItem);
     }
 
     OnImageCreationListener mCallback;
@@ -83,7 +74,7 @@ public class ImageCreationFragment extends Fragment {
 
             barProgressDialog.setTitle("Creating " + imageName + "...");
             barProgressDialog.setMessage("Starting ...");
-            barProgressDialog.setProgressStyle(barProgressDialog.STYLE_HORIZONTAL);
+            barProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             barProgressDialog.setProgress(0);
             barProgressDialog.setMax(100);
             barProgressDialog.setCancelable(false);
@@ -99,74 +90,77 @@ public class ImageCreationFragment extends Fragment {
                         Helper.verifyStoragePermissions(getActivity());
                     });
 
-                    Shell.Sync.sh(new String[]{"busybox truncate -s"+imageSize+"M " + MainActivityFragment.ROOTPATH + "/tmp.img","echo \"o\\nn\\np\\n1\\n2\\n\\nt\\nc\\na\\n1\\nw\\n\" | busybox fdisk -S 32 -H 64 " + MainActivityFragment.ROOTPATH + "/tmp.img", "busybox dd if=" + MainActivityFragment.ROOTPATH + "/tmp.img of=" + MainActivityFragment.ROOTPATH + "/"+imageName+" bs=512 count=2048", "rm " + MainActivityFragment.ROOTPATH + "/tmp.img", "busybox truncate -s" + (imageSize - 1) + "M " + MainActivityFragment.ROOTPATH + "/fat.img", "busybox mkfs.vfat -n DRIVE " + MainActivityFragment.ROOTPATH + "/fat.img"});
+                    String cacheDir = getContext().getCacheDir().getAbsolutePath();
+
+                    Shell.Sync.sh("busybox truncate -s" + imageSize + "M " + cacheDir + "/tmp.img", "echo \"o\\nn\\np\\n1\\n2\\n\\nt\\nc\\na\\n1\\nw\\n\" | busybox fdisk -S 32 -H 64 " + cacheDir + "/tmp.img", "busybox dd if=" + cacheDir + "/tmp.img of=" + MainActivityFragment.ROOTPATH + "/" + imageName + " bs=512 count=2048", "rm " + cacheDir + "/tmp.img", "busybox truncate -s" + (imageSize - 1) + "M " + cacheDir + "/fat.img", "busybox mkfs.vfat -n DRIVE " + cacheDir + "/fat.img", "chmod 0755 " + cacheDir + "/fat.img");
                     getActivity().runOnUiThread(() -> {
                         barProgressDialog.setMessage("Creating Image...");
                     });
-                    String sourceFile = "" + MainActivityFragment.USERPATH + "/fat.img";
-                    String destFile = "" + MainActivityFragment.USERPATH + "/"+imageName;
-                    FileInputStream fis = null;
-                    FileOutputStream fos = null;
+                    String sourceFile = cacheDir + "/fat.img";
+                    String destFile = MainActivityFragment.USERPATH + "/" + imageName;
+//                    FileInputStream fis = null;
+//                    FileOutputStream fos = null;
+//
+//                    try {
+//                        fis = new FileInputStream(sourceFile);
+//                        fos = new FileOutputStream(destFile,true);
+//
+//                        long size = fis.getChannel().size() + fos.getChannel().size();
+//                        byte[] buffer = new byte[1024*512];
+//                        long pos =  (int) Math.ceil(fos.getChannel().size() / buffer.length);
+//
+//                        int noOfBytes = 0;
+//
+//                        System.out.println("Copying file using streams");
+//
+//                        // read bytes from source file and write to destination file
+//                        while ((noOfBytes = fis.read(buffer)) != -1) {
+//                            // if(pos % 4 == 0){
+//
+//                            pos += 1;
+//
+//                            long finalPos = pos;
+//                            getActivity().runOnUiThread(() -> {
+//
+//                                barProgressDialog.setMessage(Helper.humanReadableByteCount(finalPos*buffer.length) + " / " + Helper.humanReadableByteCount(size));
+//                                barProgressDialog.setProgress((int) ((finalPos*buffer.length * 100l) / size));
+//                            });
+//                            //}
+//                            fos.write(buffer, 0, noOfBytes);
+//                        }
+//                    }
+//                    catch (FileNotFoundException e) {
+//                        System.out.println("File not found" + e);
+//                    }
+//                    catch (IOException ioe) {
+//                        System.out.println("Exception while copying file " + ioe);
+//                    }
+//                    finally {
+//                        // close the streams using close method
+//                        try {
+//                            if (fis != null) {
+//                                fis.close();
+//                            }
+//                            if (fos != null) {
+//                                fos.close();
+//                            }
+//                        }
+//                        catch (IOException ioe) {
+//                            System.out.println("Error while closing stream: " + ioe);
+//                        }
+//                    }
+//
+//                    File src = new File(sourceFile);
+//                    src.delete();
 
-                    try {
-                        fis = new FileInputStream(sourceFile);
-                        fos = new FileOutputStream(destFile,true);
-
-                        long size = fis.getChannel().size() + fos.getChannel().size();
-                        byte[] buffer = new byte[1024*512];
-                        long pos =  (int) Math.ceil(fos.getChannel().size() / buffer.length);
-
-                        int noOfBytes = 0;
-
-                        System.out.println("Copying file using streams");
-
-                        // read bytes from source file and write to destination file
-                        while ((noOfBytes = fis.read(buffer)) != -1) {
-                            // if(pos % 4 == 0){
-
-                            pos += 1;
-
-                            long finalPos = pos;
-                            getActivity().runOnUiThread(() -> {
-
-                                barProgressDialog.setMessage(Helper.humanReadableByteCount(finalPos*buffer.length) + " / " + Helper.humanReadableByteCount(size));
-                                barProgressDialog.setProgress((int) ((finalPos*buffer.length * 100l) / size));
-                            });
-                            //}
-                            fos.write(buffer, 0, noOfBytes);
-                        }
-                    }
-                    catch (FileNotFoundException e) {
-                        System.out.println("File not found" + e);
-                    }
-                    catch (IOException ioe) {
-                        System.out.println("Exception while copying file " + ioe);
-                    }
-                    finally {
-                        // close the streams using close method
-                        try {
-                            if (fis != null) {
-                                fis.close();
-                            }
-                            if (fos != null) {
-                                fos.close();
-                            }
-                        }
-                        catch (IOException ioe) {
-                            System.out.println("Error while closing stream: " + ioe);
-                        }
-                    }
-
-                    File src = new File(sourceFile);
-                    src.delete();
 
                 //    Thread.sleep(500);
 
                     barProgressDialog.dismiss();
                   //
                     getActivity().runOnUiThread(() -> {
-                        Toast.makeText(getActivity(), "Image successfully created",Toast.LENGTH_LONG).show();
-                        mCallback.OnImageCreation();
+                        //    Toast.makeText(getActivity(), "Image successfully created",Toast.LENGTH_LONG).show();
+                        mCallback.OnImageCreation(destFile);
                       //  getFragmentManager().popBackStackImmediate();
                     });
 

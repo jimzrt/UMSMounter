@@ -2,45 +2,34 @@ package com.example.james.myapplication;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v4.app.Fragment;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.james.myapplication.Model.CheckFolderTask;
 import com.example.james.myapplication.Model.CheckMassStorageTask;
 import com.example.james.myapplication.Model.CheckRootTask;
-import com.example.james.myapplication.Model.CreateImageTask;
-import com.example.james.myapplication.Model.ImageItem;
-import com.example.james.myapplication.Model.ImageListAdapter;
+import com.example.james.myapplication.Model.DownloadItem;
 import com.example.james.myapplication.Model.Task;
-import com.example.james.myapplication.Model.UnmountingTask;
 import com.example.james.myapplication.Utils.BackgroundTask;
 import com.example.james.myapplication.Utils.Helper;
-import com.topjohnwu.superuser.Shell;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-public class MainActivity extends AppCompatActivity implements ImageCreationFragment.OnImageCreationListener {
+public class MainActivity extends AppCompatActivity implements ImageCreationFragment.OnImageCreationListener, DownloadFragment.OnImageDownloadListener {
 
 
 
@@ -50,8 +39,9 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
    // TextView logView = null;
     Spinner usbMode = null;
 
-    MainActivityFragment main;
-    ImageCreationFragment test;
+    MainActivityFragment mainFragment;
+    ImageCreationFragment createImageFragment;
+    DownloadFragment downloadFragment;
 
     Fragment currentFragment;
 
@@ -98,8 +88,9 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
             }
 
             // Create a new Fragment to be placed in the activity layout
-            main = new MainActivityFragment();
-            test = new ImageCreationFragment();
+            mainFragment = new MainActivityFragment();
+            createImageFragment = new ImageCreationFragment();
+            downloadFragment = new DownloadFragment();
 
             // In case this activity was started with special instructions from an
             // Intent, pass the Intent's extras to the fragment as arguments
@@ -107,10 +98,10 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, main).commit();
+                    .add(R.id.fragment_container, mainFragment).commit();
         }
 
-        currentFragment = main;
+        currentFragment = mainFragment;
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.getMenu().getItem(0).setChecked(true);
@@ -124,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 
                     switch (menuItem.getItemId()){
                         case R.id.nav_home:
-                            if(currentFragment != main){
+                            if (currentFragment != mainFragment) {
                                 showMain();
 
                             } else {
@@ -133,10 +124,17 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
                             break;
                             //KEEP CURRENT FRAGMENT ID
                         case R.id.nav_create_image:
-                            if(currentFragment != test){
+                            if (currentFragment != createImageFragment) {
                                 showCreateImage();
                             } else {
                                 Toast.makeText(this,"Already on this mothafucka", Toast.LENGTH_LONG).show();
+                            }
+                            break;
+                        case R.id.nav_download_image:
+                            if (currentFragment != downloadFragment) {
+                                showDownloadImage();
+                            } else {
+                                Toast.makeText(this, "Already on this mothafucka", Toast.LENGTH_LONG).show();
                             }
                             break;
 
@@ -152,18 +150,24 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
                 new FragmentManager.OnBackStackChangedListener() {
                     @Override
                     public void onBackStackChanged() {
-                        if(main.isVisible()){
+                        if (mainFragment.isVisible()) {
                             navigationView.setCheckedItem(R.id.nav_home);
-                            currentFragment = main;
-                        } else if(test.isVisible()){
+                            currentFragment = mainFragment;
+                        } else if (createImageFragment.isAdded()) {
                             navigationView.setCheckedItem(R.id.nav_create_image);
-                            currentFragment = test;
+                            currentFragment = createImageFragment;
+                        } else if (downloadFragment.isAdded()) {
+                            navigationView.setCheckedItem(R.id.nav_download_image);
+                            currentFragment = downloadFragment;
+                        } else {
+                            navigationView.setCheckedItem(-1);
+                            currentFragment = downloadFragment;
                         }
                        // String tag = getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName();
                       //  currentFragment =  getSupportFragmentManager().findFragmentByTag(tag);
-                    //    if (tag == main.getTag()) {
+                        //    if (tag == mainFragment.getTag()) {
                   //          navigationView.setCheckedItem(R.id.nav_home);
-                   //     } else if(tag == test.getTag()){
+                        //     } else if(tag == createImageFragment.getTag()){
                 //            navigationView.setCheckedItem(R.id.nav_create_image);
                         }
                   //  }
@@ -190,24 +194,45 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
       //  mDrawerLayout.addDrawerListener(mDrawerToggle);
 
 
-
-    }
-
-    @Override
-    public void onStart() {
-
-        super.onStart();
         SharedPreferences sharedPref = getSharedPreferences(null, Context.MODE_PRIVATE);
         boolean firstRun = sharedPref.getBoolean("firstRun", true);
         if(firstRun) {
             checkAll();
-            main.populateList();
+            mainFragment.setPopulate(true);
 
         } else {
 
-            main.populateList();
+            mainFragment.setPopulate(true);
 
         }
+    }
+
+    private void showDownloadImage() {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(
+                R.anim.card_flip_right_in,
+                R.anim.card_flip_right_out,
+                R.anim.card_flip_left_in,
+                R.anim.card_flip_left_out);
+
+        if (currentFragment == mainFragment) {
+            transaction.hide(mainFragment);
+        } else {
+            transaction.remove(currentFragment);
+        }
+        transaction.add(R.id.fragment_container, downloadFragment);
+
+
+        transaction.addToBackStack(null);
+        transaction.commit();
+        currentFragment = downloadFragment;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+
     }
 
     private void showCreateImage() {
@@ -217,11 +242,15 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
                 R.anim.card_flip_right_out,
                 R.anim.card_flip_left_in,
                 R.anim.card_flip_left_out);
-        transaction.hide(main);
-        transaction.add(R.id.fragment_container, test);
+        if (currentFragment == mainFragment) {
+            transaction.hide(mainFragment);
+        } else {
+            transaction.remove(currentFragment);
+        }
+        transaction.add(R.id.fragment_container, createImageFragment);
         transaction.addToBackStack(null);
         transaction.commit();
-        currentFragment = test;
+        currentFragment = createImageFragment;
     }
 
     private void showMain() {
@@ -232,10 +261,12 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
                 R.anim.card_flip_right_in,
                 R.anim.card_flip_right_out);
         transaction.remove(currentFragment);
-        transaction.show(main);
-        transaction.addToBackStack(null);
+        transaction.show(mainFragment);
+        //transaction.addToBackStack(null);
         transaction.commit();
-        currentFragment = main;
+        currentFragment = mainFragment;
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
     }
 
     @Override
@@ -271,9 +302,9 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
     //    }
         switch (id){
             case R.id.action_revert:
-                main.unmount("mtp,adb");
-                if(main.isAdded()){
-                    main.toggleButton.setChecked(false);
+                mainFragment.unmount("mtp,adb");
+                if (mainFragment.isAdded()) {
+                    mainFragment.toggleButton.setChecked(false);
                 }
                 return true;
             case R.id.action_check_dependencies:
@@ -322,8 +353,25 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
     }
 
     @Override
-    public void OnImageCreation() {
-        main.populateList();
+    public void OnImageCreation(String imageItem) {
         showMain();
+        mainFragment.populateList();
+        mainFragment.createImage(imageItem);
+
+    }
+
+    @Override
+    public void OnImageListClick(DownloadItem downloadItem) {
+
+        Gson gson = new GsonBuilder().create();
+        String downloadItemString = gson.toJson(downloadItem);
+
+        Intent intent = new Intent(this, LinuxImageFragment.class);
+
+
+        intent.putExtra("downloadItem", downloadItemString);
+        startActivity(intent);
+
+
     }
 }

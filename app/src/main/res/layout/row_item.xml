@@ -1,9 +1,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rowRoot"
     android:layout_width="match_parent"
     android:layout_height="70dp"
+    android:descendantFocusability="blocksDescendants"
     android:orientation="vertical"
-    android:padding="10dp"
-    android:descendantFocusability="blocksDescendants">
+    android:padding="10dp">
 
 
     <ImageView
@@ -13,8 +14,7 @@
         android:layout_alignParentTop="true"
 
         android:layout_centerVertical="true"
-        android:src="@drawable/ic_mass_storage"
-        android:tint="@color/colorAccent" />
+        android:src="@drawable/ic_mass_storage" />
 
 
     <TextView
@@ -62,6 +62,14 @@
         android:backgroundTint="#b60009"
         android:text="Delete"
         android:textSize="12sp" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/mountButton"
+        android:layout_centerVertical="true" />
 
 
 </RelativeLayout>
