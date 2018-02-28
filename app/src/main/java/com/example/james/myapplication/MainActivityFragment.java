@@ -8,9 +8,11 @@ import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +25,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.downloader.Error;
+import com.downloader.OnCancelListener;
+import com.downloader.OnDownloadListener;
+import com.downloader.OnPauseListener;
+import com.downloader.OnProgressListener;
+import com.downloader.OnStartOrResumeListener;
+import com.downloader.PRDownloader;
+import com.downloader.Progress;
 import com.example.james.myapplication.Model.ImageItem;
 import com.example.james.myapplication.Model.ImageListAdapter;
 import com.example.james.myapplication.Model.MountImageTask;
@@ -90,7 +100,7 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
             for (File file : files) {
                 ImageItem item = new ImageItem(file.getName(), ROOTPATH + "/" + file.getName(), USERPATH + "/" + file.getName(), Helper.humanReadableByteCount(file.length()));
                 if (!listViewAdapter.contains(item)) {
-                    listViewAdapter.addItem(item);
+                    listViewAdapter.addItem(item, false);
                 }
             }
         }
@@ -147,6 +157,14 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
         listView.setLayoutManager(mLayoutManager);
 
         listViewAdapter = new ImageListAdapter(new ArrayList<>(), getContext(), this);
+        DefaultItemAnimator animator = new DefaultItemAnimator() {
+            @Override
+            public boolean canReuseUpdatedViewHolder(RecyclerView.ViewHolder viewHolder) {
+                return true;
+            }
+        };
+        listView.setItemAnimator(animator);
+        ((SimpleItemAnimator) listView.getItemAnimator()).setSupportsChangeAnimations(false);
         listView.setAdapter(listViewAdapter);
         listView.setHasFixedSize(true);
         listView.getItemAnimator().setChangeDuration(0);
@@ -329,24 +347,16 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
 
     }
 
-    public void createImage(String destFile) {
+    public void createImage(ImageItem destFile) {
 
 
-        ImageItem item = null;
-        int index = -1;
-        for (int i = 0; i < listView.getAdapter().getItemCount(); i++) {
-            if (((ImageListAdapter) listView.getAdapter()).getItemAtPosition(i).getUserPath().equals(destFile)) {
-                item = ((ImageListAdapter) listView.getAdapter()).getItemAtPosition(i);
-                index = i;
-                break;
-            }
-        }
+        int index = listViewAdapter.addItem(destFile, false);
+        listView.smoothScrollToPosition(index);
 
-        if (item != null) {
-            item.setDownloading(true);
-        }
-        ImageItem finalItem = item;
-        int finalIndex = index;
+
+        destFile.setDownloading(true);
+
+
 
         final int[] oldProgress = {0};
         Thread createImageThread = new Thread(() -> {
@@ -359,7 +369,7 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
 
                 try {
                     fis = new FileInputStream(sourceFile);
-                    fos = new FileOutputStream(destFile, true);
+                    fos = new FileOutputStream(destFile.getUserPath(), true);
 
                     size = fis.getChannel().size() + fos.getChannel().size();
                     byte[] buffer = new byte[1024 * 512];
@@ -367,7 +377,6 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
 
                     int noOfBytes = 0;
 
-                    System.out.println("Copying file using streams");
 
                     // read bytes from source file and write to destination file
                     while ((noOfBytes = fis.read(buffer)) != -1) {
@@ -376,20 +385,19 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
                         pos += 1;
 
                         long finalPos = pos;
-                        if (finalItem != null) {
                             int progress = (int) ((finalPos * buffer.length * 100l) / size);
-                            finalItem.setProgress(progress);
-                            finalItem.setSize(Helper.humanReadableByteCount((finalPos * buffer.length)));
+                        destFile.setProgress(progress);
+                        destFile.setSize(Helper.humanReadableByteCount((finalPos * buffer.length)));
                             if ((progress - oldProgress[0]) > 1) {
                                 oldProgress[0] = progress;
 
                                 getActivity().runOnUiThread(() -> {
-                                    listView.getAdapter().notifyItemChanged(finalIndex, "download");
+                                    listView.getAdapter().notifyItemChanged(listViewAdapter.getPositionOfItem(destFile), "download");
                                 });
                             }
 
 
-                        }
+
 
 
                         fos.write(buffer, 0, noOfBytes);
@@ -422,10 +430,14 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
                 long finalSize = size;
                 getActivity().runOnUiThread(() -> {
                     Toast.makeText(getActivity(), "Image successfully created", Toast.LENGTH_LONG).show();
-                    finalItem.setDownloading(false);
-                    finalItem.setSize(Helper.humanReadableByteCount(finalSize));
-                    ((ImageListAdapter) listView.getAdapter()).setSelectedItemPosition(finalIndex);
-                    listViewAdapter.notifyItemChanged(finalIndex, "download");
+                    destFile.setDownloading(false);
+                    destFile.setSize(Helper.humanReadableByteCount(finalSize));
+                    //  ((ImageListAdapter) listView.getAdapter()).setSelectedItemPosition(-1);
+                    listView.smoothScrollToPosition(listViewAdapter.getPositionOfItem(destFile));
+                    listViewAdapter.notifyItemChanged(listViewAdapter.getPositionOfItem(destFile), "download");
+
+                    listView.postDelayed(() -> ((ImageListAdapter) listView.getAdapter()).setSelectedItemPosition(listViewAdapter.getPositionOfItem(destFile)), 500);
+
                 });
 
             } catch (Exception e) {
@@ -441,5 +453,85 @@ public class MainActivityFragment extends Fragment implements ImageListAdapter.O
 
     public void setPopulate(boolean populate) {
         this.populate = populate;
+    }
+
+    public void addImage(ImageItem imageItem) {
+
+
+        imageItem.setDownloading(true);
+        int position = listViewAdapter.addItem(imageItem, false);
+        listView.smoothScrollToPosition(position);
+        int downloadId = PRDownloader.download(imageItem.getRootPath(), USERPATH, imageItem.getName())
+                .build()
+                .setOnStartOrResumeListener(new OnStartOrResumeListener() {
+
+                    @Override
+                    public void onStartOrResume() {
+                        imageItem.setUserPath(USERPATH + "/" + imageItem.getName());
+                        imageItem.setRootPath(ROOTPATH + "/" + imageItem.getName());
+
+                    }
+                })
+                .setOnPauseListener(new OnPauseListener() {
+                    @Override
+                    public void onPause() {
+
+                    }
+                })
+                .setOnCancelListener(new OnCancelListener() {
+                    @Override
+                    public void onCancel() {
+
+                    }
+                })
+                .setOnProgressListener(new OnProgressListener() {
+                    int oldProgress = 0;
+
+                    @Override
+                    public void onProgress(Progress progress) {
+
+                        int progr = (int) ((progress.currentBytes * 100) / progress.totalBytes);
+                        if (progr - oldProgress >= 1) {
+                            oldProgress = progr;
+
+                            imageItem.setProgress(progr);
+                            imageItem.setSize(Helper.humanReadableByteCount(progress.currentBytes) + "/" + Helper.humanReadableByteCount(progress.totalBytes));
+
+
+                            getActivity().runOnUiThread(() -> {
+                                listViewAdapter.notifyItemChanged(listViewAdapter.getPositionOfItem(imageItem), "download");
+                            });
+
+                        }
+                    }
+                })
+                .start(new OnDownloadListener() {
+                    @Override
+                    public void onDownloadComplete() {
+                        imageItem.setDownloading(false);
+                        getActivity().runOnUiThread(() -> {
+                            listViewAdapter.notifyItemChanged(listViewAdapter.getPositionOfItem(imageItem));
+                            Toast.makeText(getContext(), "Downloaded!", Toast.LENGTH_SHORT).show();
+                        });
+                    }
+
+                    @Override
+                    public void onError(Error error) {
+
+                        getActivity().runOnUiThread(() -> {
+                            File file = new File(imageItem.getUserPath());
+                            file.delete();
+                            Toast.makeText(getContext(), "Deleted!", Toast.LENGTH_SHORT).show();
+                            ((ImageListAdapter) listView.getAdapter()).setSelectedItemPosition(-1);
+                            ((ImageListAdapter) listView.getAdapter()).remove(imageItem);
+                            //listViewAdapter.notifyItemChanged(position, "download");
+                        });
+                    }
+
+
+                });
+        // int position = listViewAdapter.getPositionOfItem(imageItem);
+        // Log.i("lala", "POSITION  " + position);
+        // listViewAdapter.setSelectedItemPosition(position);
     }
 }

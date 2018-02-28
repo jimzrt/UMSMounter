@@ -1,10 +1,10 @@
 package com.example.james.myapplication;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -23,6 +23,7 @@ import com.example.james.myapplication.Model.CheckFolderTask;
 import com.example.james.myapplication.Model.CheckMassStorageTask;
 import com.example.james.myapplication.Model.CheckRootTask;
 import com.example.james.myapplication.Model.DownloadItem;
+import com.example.james.myapplication.Model.ImageItem;
 import com.example.james.myapplication.Model.Task;
 import com.example.james.myapplication.Utils.BackgroundTask;
 import com.example.james.myapplication.Utils.Helper;
@@ -47,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 
     Toolbar toolbar;
     private DrawerLayout mDrawerLayout;
+    private NavigationView navigationView;
+
     //private ActionBarDrawerToggle mDrawerToggle;
 
 
@@ -103,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 
         currentFragment = mainFragment;
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.getMenu().getItem(0).setChecked(true);
         navigationView.setNavigationItemSelectedListener(
                 menuItem -> {
@@ -226,6 +229,7 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
         transaction.addToBackStack(null);
         transaction.commit();
         currentFragment = downloadFragment;
+        navigationView.setCheckedItem(R.id.nav_download_image);
     }
 
     @Override
@@ -251,6 +255,7 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
         transaction.addToBackStack(null);
         transaction.commit();
         currentFragment = createImageFragment;
+        navigationView.setCheckedItem(R.id.nav_create_image);
     }
 
     private void showMain() {
@@ -265,6 +270,7 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
         //transaction.addToBackStack(null);
         transaction.commit();
         currentFragment = mainFragment;
+        navigationView.setCheckedItem(R.id.nav_home);
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
     }
@@ -276,17 +282,6 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
         return true;
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-     //   mDrawerToggle.onConfigurationChanged(newConfig);
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-   //     mDrawerToggle.syncState();
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -353,9 +348,10 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
     }
 
     @Override
-    public void OnImageCreation(String imageItem) {
+    public void OnImageCreation(String imageItemName) {
         showMain();
-        mainFragment.populateList();
+        //mainFragment.populateList();
+        ImageItem imageItem = new ImageItem(imageItemName, MainActivityFragment.ROOTPATH + "/" + imageItemName, MainActivityFragment.USERPATH + "/" + imageItemName, Helper.humanReadableByteCount(0));
         mainFragment.createImage(imageItem);
 
     }
@@ -370,8 +366,38 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 
 
         intent.putExtra("downloadItem", downloadItemString);
-        startActivity(intent);
+        startActivityForResult(intent, 0);
 
 
+    }
+
+    @SuppressLint("MissingSuperCall")
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        //No call for super(). Bug on API Level > 11.
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // Check which request we're responding to
+        if (requestCode == 0) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+//
+                String name = data.getStringExtra("name");
+                String url = data.getStringExtra("url");
+                ImageItem imageItem = new ImageItem(name, url, url, Helper.humanReadableByteCount(0));
+
+                showMain();
+                mainFragment.addImage(imageItem);
+
+                // The user picked a contact.
+                // The Intent's data Uri identifies which contact was selected.
+
+                // Do something with the contact here (bigger example below)
+            }
+        }
     }
 }

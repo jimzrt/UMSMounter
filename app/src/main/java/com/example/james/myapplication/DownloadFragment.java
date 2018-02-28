@@ -9,22 +9,36 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.james.myapplication.Model.DownloadItem;
 import com.example.james.myapplication.Model.ImageDownloadListAdapter;
+import com.example.james.myapplication.Utils.Helper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.Writer;
+import java.lang.reflect.Type;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by james on 14.02.18.
  */
 
 public class DownloadFragment extends Fragment {
+
+    private TextView updatedTextView;
 
     public interface OnImageDownloadListener {
         void OnImageListClick(DownloadItem downloadItem);
@@ -57,12 +71,48 @@ public class DownloadFragment extends Fragment {
 
         Thread thread = new Thread(() -> {
             try {
-                Reader reader = new InputStreamReader(new URL("http://softwarebakery.com/apps/drivedroid/repositories/main.json").openStream());
-                Gson gson = new GsonBuilder().create();
 
-                DownloadItem[] obj = gson.fromJson(reader, DownloadItem[].class);
+                Type imageListType = new TypeToken<ArrayList<DownloadItem>>() {
+                }.getType();
+
+                File file = new File(getContext().getFilesDir(), "data.json");
+                List<DownloadItem> list = null;
+                if (file.exists()) {
+                    Reader reader = new FileReader(getContext().getFilesDir() + "/data.json");
+                    Gson gson = new GsonBuilder().create();
+
+                    list = gson.fromJson(reader, imageListType);
+                    getActivity().runOnUiThread(() -> {
+                        updatedTextView.setText("Last updated: " + Helper.convertDate("" + file.lastModified()));
+                    });
+
+                } else {
+
+                    Reader reader = new InputStreamReader(new URL("http://softwarebakery.com/apps/drivedroid/repositories/main.json").openStream());
+                    Gson gson = new GsonBuilder().create();
+
+                    list = gson.fromJson(reader, imageListType);
+                    Iterator<DownloadItem> iterator = list.iterator();
+
+                    while (iterator.hasNext()) {
+                        DownloadItem item = iterator.next();
+                        if (item.releases.length == 0) {
+                            iterator.remove();
+                        }
+                    }
+
+                    Collections.sort(list);
+
+                    try (Writer writer = new FileWriter(getContext().getFilesDir() + "/data.json")) {
+                        gson = new GsonBuilder().create();
+                        gson.toJson(list, writer);
+                    }
+                }
+
+
+                List<DownloadItem> finalList = list;
                 getActivity().runOnUiThread(() -> {
-                    listViewAdapter.setItems(obj);
+                    listViewAdapter.setItems(finalList);
                     listViewAdapter.notifyDataSetChanged();
                 });
 
@@ -73,8 +123,9 @@ public class DownloadFragment extends Fragment {
 
         thread.start();
 
-        View view = inflater.inflate(R.layout.fragment_test, container, false);
+        View view = inflater.inflate(R.layout.fragment_download, container, false);
         recyclerView = view.findViewById(R.id.downloadImageList);
+        updatedTextView = view.findViewById(R.id.updatedTextView);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
 

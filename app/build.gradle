@@ -37,6 +37,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     implementation 'com.github.topjohnwu:libsu:1.1.1'
     compile 'com.google.code.gson:gson:2.8.2'
+    compile 'com.mindorks.android:prdownloader:0.2.0'
+
 
 
 }

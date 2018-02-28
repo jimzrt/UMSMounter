@@ -1,5 +1,6 @@
 package com.example.james.myapplication;
 
+import com.downloader.PRDownloader;
 import com.topjohnwu.superuser.BusyBox;
 import com.topjohnwu.superuser.Shell;
 
@@ -17,6 +18,8 @@ public class StartApp extends Shell.ContainerApp {
         Shell.verboseLogging(BuildConfig.DEBUG);
         // Use internal busybox
         BusyBox.setup(this);
+        PRDownloader.initialize(getApplicationContext());
+
     }
 
 }

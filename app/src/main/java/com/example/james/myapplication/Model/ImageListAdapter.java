@@ -64,14 +64,20 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
     public void onBindViewHolder(ViewHolder holder, int position, List<Object> payloads) {
         if (payloads.isEmpty()) {
             // Perform a full update
+            Log.i("lala", "shoukld aufklappen2 not " + position);
+
             onBindViewHolder(holder, position);
         } else {
-            Log.i("lala", "ZUKLAPPEN!");
             // Perform a partial update
             for (Object payload : payloads) {
                 View convertView = holder.rootView;
 
                 if (payload.equals("aufklappen")) {
+
+                    // boolean visible = ((LinearLayoutManager) mRecyclerView.getLayoutManager()).isViewPartiallyVisible(convertView, false, true);
+                    Log.i("lala", "shoukld aufklappen2 yes " + position);
+
+
 
                     // int colorFrom = Color.argb(0, 250, 250, 250);
                     // int colorTo = Color.argb(255, 220, 220, 220);
@@ -105,8 +111,8 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
                     ValueAnimator anim2 = ValueAnimator.ofFloat(0f, 1f);
                     anim2.addUpdateListener(valueAnimator -> {
                         float val = (Float) valueAnimator.getAnimatedValue();
-                        holder.mountButton.setAlpha(val);
-                        holder.deleteButton.setAlpha(val);
+                        // holder.mountButton.setAlpha(val);
+                        //  holder.deleteButton.setAlpha(val);
                     });
                     anim2.addListener(new Animator.AnimatorListener() {
                         @Override
@@ -168,11 +174,11 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
                     anim.setDuration(300);
                     anim.start();
 
-                    ValueAnimator anim2 = ValueAnimator.ofInt(255, 0);
+                    ValueAnimator anim2 = ValueAnimator.ofInt(1, 0);
                     anim2.addUpdateListener(valueAnimator -> {
                         int val = (Integer) valueAnimator.getAnimatedValue();
-                        holder.mountButton.setAlpha(val);
-                        holder.deleteButton.setAlpha(val);
+                        //  holder.mountButton.setAlpha(val);
+                        // holder.deleteButton.setAlpha(val);
 
                     });
                     anim2.addListener(new Animator.AnimatorListener() {
@@ -237,21 +243,29 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
 
         View convertView = holder.rootView;
 
-        convertView.setBackgroundColor(Color.argb(0, 220, 220, 220));
+        ViewGroup.LayoutParams layoutParams = convertView.getLayoutParams();
+        if (imageItem.getSelected()) {
 
-        //    if(imageItem.getSelected()) {
+
+            convertView.setBackgroundColor(Color.argb(255, 220, 220, 220));
+            convertView.setRotationX(20f);
+            layoutParams.height = Helper.px2dp(70 + 30, mContext);
+
+            holder.mountButton.setVisibility(View.VISIBLE);
+            holder.deleteButton.setVisibility(View.VISIBLE);
+        } else {
+            convertView.setBackgroundColor(Color.argb(0, 220, 220, 220));
+            convertView.setRotationX(0);
+            layoutParams.height = Helper.px2dp(70, mContext);
+            holder.mountButton.setVisibility(View.INVISIBLE);
+            holder.deleteButton.setVisibility(View.INVISIBLE);
+        }
 
 
-        // } else {
-        //   convertView.setBackgroundColor(Color.argb(0, 250, 250, 250));
-        //  convertView.setRotationX(0f);
-        // ViewGroup.LayoutParams layoutParams = convertView.getLayoutParams();
-        // layoutParams.height = Helper.px2dp(70, mContext);
-        // convertView.setLayoutParams(layoutParams);
+        convertView.setLayoutParams(layoutParams);
         //holder.mountButton.setAlpha(0);
         //holder.deleteButton.setAlpha(0);
-        holder.mountButton.setVisibility(View.INVISIBLE);
-        holder.deleteButton.setVisibility(View.INVISIBLE);
+
 
 
         //  }
@@ -269,12 +283,12 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
 
         //    }
 
-        //    if(imageItem.isDownloading()){
-        //      holder.progressBar.setVisibility(View.VISIBLE);
-        //       holder.progressBar.setProgress(imageItem.getProgress());
-        //    } else {
+        if (imageItem.isDownloading()) {
+            holder.progressBar.setVisibility(View.VISIBLE);
+            holder.progressBar.setProgress(imageItem.getProgress());
+        } else {
         holder.progressBar.setVisibility(View.INVISIBLE);
-        //    }
+        }
 
 
     }
@@ -290,6 +304,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
 
     public void remove(ImageItem checkedItem) {
         //animationMap.remove(dataSet.indexOf(checkedItem));
+        setSelectedItemPosition(-1);
         dataSet.remove(checkedItem);
     }
 
@@ -312,12 +327,31 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
 
     }
 
-    public void addItem(ImageItem imageItem) {
-        dataSet.add(imageItem);
+    public int addItem(ImageItem imageItem, boolean selected) {
+        setSelectedItemPosition(-1);
+        int position = dataSet.add(imageItem);
+        if (selected) {
+
+            mRecyclerView.postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    setSelectedItemPosition(position);
+                }
+
+            }, 1000);
+
+
+        }
+        return position;
     }
 
     public boolean contains(ImageItem item) {
         return dataSet.indexOf(item) != -1;
+    }
+
+    public int getPositionOfItem(ImageItem imageItem) {
+        return dataSet.indexOf(imageItem);
     }
 
     public interface OnImageButtonListener {
@@ -382,6 +416,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
         }
         dataSet.get(position).setSelected(true);
         notifyItemChanged(position, "aufklappen");
+        Log.i("lala", "shoukld aufklappen1");
         lastSelected = position;
     }
 

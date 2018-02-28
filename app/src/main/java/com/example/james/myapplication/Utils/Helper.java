@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
+import android.text.format.DateFormat;
 import android.util.TypedValue;
 
 import java.util.concurrent.TimeUnit;
@@ -32,6 +33,12 @@ public class Helper {
                         TimeUnit.MILLISECONDS.toHours(milliseconds)),
                 TimeUnit.MILLISECONDS.toSeconds(milliseconds) - TimeUnit.MINUTES.toSeconds(
                         TimeUnit.MILLISECONDS.toMinutes(milliseconds)));
+    }
+
+    private static final String DATEFORMAT = "dd/MM/yyyy hh:mm:ss";
+
+    public static String convertDate(String dateInMilliseconds) {
+        return DateFormat.format(DATEFORMAT, Long.parseLong(dateInMilliseconds)).toString();
     }
 
     public static int px2dp(int size, Context ctx){

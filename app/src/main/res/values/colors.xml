@@ -6,4 +6,5 @@
     <color name="selected">#dcdcdc</color>
     <color name="green">#1c7350</color>
     <color name="colorBackground">#fafafa</color>
+    <color name="bright_grey">#c1c1c1</color>
 </resources>

@@ -103,4 +103,11 @@ public class ImageItem implements Comparable<ImageItem> {
     }
 
 
+    public void setUserPath(String userPath) {
+        this.userPath = userPath;
+    }
+
+    public void setRootPath(String rootPath) {
+        this.rootPath = rootPath;
+    }
 }

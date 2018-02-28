@@ -96,8 +96,8 @@ public class ImageCreationFragment extends Fragment {
                     getActivity().runOnUiThread(() -> {
                         barProgressDialog.setMessage("Creating Image...");
                     });
-                    String sourceFile = cacheDir + "/fat.img";
-                    String destFile = MainActivityFragment.USERPATH + "/" + imageName;
+                    //    String sourceFile = cacheDir + "/fat.img";
+                    //    String destFile = MainActivityFragment.USERPATH + "/" + imageName;
 //                    FileInputStream fis = null;
 //                    FileOutputStream fos = null;
 //
@@ -160,7 +160,7 @@ public class ImageCreationFragment extends Fragment {
                   //
                     getActivity().runOnUiThread(() -> {
                         //    Toast.makeText(getActivity(), "Image successfully created",Toast.LENGTH_LONG).show();
-                        mCallback.OnImageCreation(destFile);
+                        mCallback.OnImageCreation(imageName);
                       //  getFragmentManager().popBackStackImmediate();
                     });
 

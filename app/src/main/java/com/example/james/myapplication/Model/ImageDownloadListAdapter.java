@@ -10,13 +10,15 @@ import android.widget.TextView;
 import com.example.james.myapplication.DownloadFragment;
 import com.example.james.myapplication.R;
 
+import java.util.List;
+
 /**
  * Created by james on 27.02.18.
  */
 
 public class ImageDownloadListAdapter extends RecyclerView.Adapter<ImageDownloadListAdapter.ViewHolder> implements View.OnClickListener {
     private DownloadFragment.OnImageDownloadListener mCallback;
-    private DownloadItem[] mDataset;
+    private List<DownloadItem> mDataset;
 
 
     RecyclerView mRecyclerView;
@@ -28,7 +30,7 @@ public class ImageDownloadListAdapter extends RecyclerView.Adapter<ImageDownload
         mRecyclerView = recyclerView;
     }
 
-    public void setItems(DownloadItem[] items) {
+    public void setItems(List<DownloadItem> items) {
         this.mDataset = items;
     }
 
@@ -37,30 +39,34 @@ public class ImageDownloadListAdapter extends RecyclerView.Adapter<ImageDownload
 
         int itemPosition = mRecyclerView.getChildLayoutPosition(v);
 
-        mCallback.OnImageListClick(mDataset[itemPosition]);
+        mCallback.OnImageListClick(mDataset.get(itemPosition));
 
     }
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public ConstraintLayout root;
-        public TextView mTextView;
+        ConstraintLayout root;
+        TextView downloadNameView;
+        TextView downloadUrlView;
+        TextView downloadReleasesView;
 
-        public ViewHolder(ConstraintLayout v, View.OnClickListener listener) {
+        ViewHolder(ConstraintLayout v, View.OnClickListener listener) {
             super(v);
             root = v;
             root.setOnClickListener(listener);
-            mTextView = v.findViewById(R.id.downloadName);
+            downloadNameView = v.findViewById(R.id.downloadName);
+            downloadUrlView = v.findViewById(R.id.download_url);
+            downloadReleasesView = v.findViewById(R.id.download_releases);
 
         }
 
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ImageDownloadListAdapter(DownloadItem[] myDataset, DownloadFragment.OnImageDownloadListener mCallback) {
+    public ImageDownloadListAdapter(List<DownloadItem> myDataset, DownloadFragment.OnImageDownloadListener mCallback) {
         mDataset = myDataset;
         this.mCallback = mCallback;
     }
@@ -83,7 +89,9 @@ public class ImageDownloadListAdapter extends RecyclerView.Adapter<ImageDownload
     public void onBindViewHolder(ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.mTextView.setText(mDataset[position].name);
+        holder.downloadNameView.setText(mDataset.get(position).name);
+        holder.downloadUrlView.setText(mDataset.get(position).url);
+        holder.downloadReleasesView.setText(mDataset.get(position).releases.length + " Releases");
 
     }
 
@@ -92,6 +100,6 @@ public class ImageDownloadListAdapter extends RecyclerView.Adapter<ImageDownload
     public int getItemCount() {
         if (mDataset == null)
             return 0;
-        return mDataset.length;
+        return mDataset.size();
     }
 }
