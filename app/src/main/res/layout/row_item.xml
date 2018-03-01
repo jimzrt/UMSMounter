@@ -1,75 +1,78 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rowRoot"
     android:layout_width="match_parent"
     android:layout_height="70dp"
     android:descendantFocusability="blocksDescendants"
-    android:orientation="vertical"
-    android:padding="10dp">
+    android:orientation="vertical">
 
 
     <ImageView
         android:id="@+id/item_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
 
-        android:layout_centerVertical="true"
-        android:src="@drawable/ic_mass_storage" />
+        android:layout_marginStart="8dp"
+        android:src="@drawable/ic_mass_storage"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <TextView
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_marginStart="18dp"
-        android:layout_toEndOf="@+id/item_info"
+        android:layout_marginTop="8dp"
         android:text="Marshmallow"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        app:layout_constraintStart_toEndOf="@+id/item_info"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <TextView
         android:id="@+id/type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/name"
         android:layout_marginStart="18dp"
         android:layout_marginTop="5dp"
 
-        android:layout_toEndOf="@+id/item_info"
-
-        android:text="Android 6.0" />
+        android:text="Android 6.0"
+        app:layout_constraintStart_toEndOf="@+id/item_info"
+        app:layout_constraintTop_toBottomOf="@+id/name" />
 
     <ToggleButton
         android:id="@+id/mountButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/deleteButton"
         android:layout_marginEnd="15dp"
-        android:layout_toStartOf="@+id/deleteButton"
         android:textOff="Mount"
         android:textOn="Unmount"
-        android:textSize="12sp" />
+        android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@+id/deleteButton"
+        app:layout_constraintTop_toTopOf="@+id/deleteButton" />
 
     <Button
         android:id="@+id/deleteButton"
         style="@style/Widget.AppCompat.Button.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@+id/item_info"
-        android:layout_marginTop="5dp"
+        android:layout_marginEnd="8dp"
         android:backgroundTint="#b60009"
         android:text="Delete"
-        android:textSize="12sp" />
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/progressBar"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="160dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/mountButton"
-        android:layout_centerVertical="true" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

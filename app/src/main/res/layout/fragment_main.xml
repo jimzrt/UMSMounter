@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:minHeight="118dp"
-    tools:context="com.example.james.myapplication.MainActivityFragment"
+    tools:context="com.jimzrt.umsmounter.Fragments.MainFragment"
     tools:layout_editor_absoluteY="137dp"
 
     >
@@ -93,15 +93,6 @@
         app:layout_constraintBottom_toTopOf="@+id/spinner"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:id="@+id/buttonRefresh2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="140dp"
-        android:text="Refresh"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
         android:id="@+id/buttonRefresh"
@@ -109,7 +100,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
+        android:background="?android:attr/selectableItemBackground"
         android:src="@android:drawable/ic_popup_sync"
         android:tint="@color/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
