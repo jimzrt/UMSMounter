@@ -1,10 +1,11 @@
 package com.jimzrt.umsmounter.Fragments;
 
 import android.app.AlertDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -22,7 +23,6 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.jimzrt.umsmounter.ListAdapters.ImageListAdapter;
 import com.jimzrt.umsmounter.Model.ImageItem;
@@ -32,6 +32,7 @@ import com.jimzrt.umsmounter.Tasks.MountImageTask;
 import com.jimzrt.umsmounter.Tasks.UnmountingTask;
 import com.jimzrt.umsmounter.Utils.BackgroundTask;
 import com.jimzrt.umsmounter.Utils.Helper;
+import com.jimzrt.umsmounter.ViewModels.ImageItemViewModel;
 import com.tonyodev.fetch2.Download;
 import com.tonyodev.fetch2.Fetch;
 import com.tonyodev.fetch2.FetchListener;
@@ -54,67 +55,29 @@ import java.util.List;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainFragment extends Fragment implements ImageListAdapter.OnImageButtonListener {
+public class MainFragment extends Fragment implements ImageListAdapter.OnImageListListener {
 
     public static final String ROOTPATH = "/data/media/0/UMSMounter";
     public static final String USERPATH = "/sdcard/UMSMounter";
     public static final String ROOTDIR = "/UMSMounter";
 
     // Animation animation;
-    public ToggleButton toggleButton;
-    // TextView logView = null;
     RecyclerView listView = null;
     ImageListAdapter listViewAdapter = null;
     Spinner usbMode = null;
     ArrayAdapter<String> usbModeAdapter = null;
-    private View view;
     private boolean populate;
     private String functionMode = "mtp,adb";
     private Fetch mainFetch;
+    private ImageItemViewModel model;
+
 
     @Override
     public void onActivityCreated(Bundle bundle) {
         super.onActivityCreated(bundle);
         if (populate) {
-            populateList();
             populate = false;
         }
-    }
-
-    public void populateList() {
-        String path = Environment.getExternalStorageDirectory().toString() + ROOTDIR;
-        File f = new File(path);
-
-
-        File files[] = f.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                ImageItem item = new ImageItem(file.getName(), ROOTPATH + "/" + file.getName(), USERPATH + "/" + file.getName(), Helper.humanReadableByteCount(file.length()));
-                if (!listViewAdapter.contains(item)) {
-                    listViewAdapter.addItem(item, false);
-                }
-            }
-        }
-
-        SharedPreferences sharedPref = getContext().getSharedPreferences(null, Context.MODE_PRIVATE);
-        TextView textMode = view.findViewById(R.id.textMode);
-        textMode.setText(sharedPref.getString("usbMode", "Not Supported"));
-
-
-        // use a linear layout manager
-        //   listViewAdapter.addItems(list);
-
-        //listView.setOnItemClickListener(adapter);
-        //adapter.addAll(list);
-        List<String> modes = new ArrayList<>(Arrays.asList("Writable USB", "Read-only USB"));
-        if (sharedPref.getBoolean("cdrom", false)) {
-            modes.add("CD-ROM");
-        }
-
-        usbModeAdapter.clear();
-        usbModeAdapter.addAll(modes);
-        usbMode.setSelection(0);
-
     }
 
 
@@ -137,15 +100,28 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageBu
     }
 
     @Override
-    public void onStop() {
-        //    mainFetch.close();
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
+        mainFetch.close();
     }
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_main, container, false);
+
+
+        if (mainFetch == null) {
+            mainFetch = new Fetch.Builder(getContext(), "Main")
+                    .setDownloadConcurrentLimit(4) // Allows Fetch to download 4 downloads in Parallel.
+                    .enableLogging(true)
+                    .build();
+            mainFetch.cancelAll();
+            mainFetch.removeAll();
+
+        }
+
+        View view = inflater.inflate(R.layout.fragment_main, container, false);
 
 
         if (getActivity() != null)
@@ -153,15 +129,11 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageBu
         listView = view.findViewById(R.id.listview);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         listView.setLayoutManager(mLayoutManager);
+        model = ViewModelProviders.of(this).get(ImageItemViewModel.class);
 
-        listViewAdapter = new ImageListAdapter(new ArrayList<>(), getContext(), this);
-//        DefaultItemAnimator animator = new DefaultItemAnimator() {
-//            @Override
-//            public boolean canReuseUpdatedViewHolder(RecyclerView.ViewHolder viewHolder) {
-//                return true;
-//            }
-//        };
-//        listView.setItemAnimator(animator);
+        listViewAdapter = new ImageListAdapter(model.getImages(false).getValue(), getContext(), this);
+
+
         ((SimpleItemAnimator) listView.getItemAnimator()).setSupportsChangeAnimations(false);
         listView.setAdapter(listViewAdapter);
         listView.setHasFixedSize(true);
@@ -178,53 +150,16 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageBu
 
         usbModeAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item,
                 new ArrayList<>());
-        //usbModeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        //  spinnerAdapter.notifyDataSetChanged();
+
+
         usbMode.setAdapter(usbModeAdapter);
 
-
-        // ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
-//        Button button = view.findViewById(R.id.button);
-//        button.setOnClickListener(v -> {
-//            mCallback.OnAboutButtonClick();
-//        });
-
-        //   logView = findViewById(R.id.editText);
-        //logView.setKeyListener(null);
-        // logView.append("==== UMS Mounter====\n");
-
-
-        toggleButton = view.findViewById(R.id.toggleButton);
-        toggleButton.setOnClickListener((View v) -> {
-            if (toggleButton.isChecked()) {
-
-                int checkedItemPosition = ((ImageListAdapter) listView.getAdapter()).getSelectedItemPosition();
-                if (checkedItemPosition == -1) {
-                    Toast.makeText(getContext(), "Please select Image", Toast.LENGTH_SHORT).show();
-                    toggleButton.setChecked(false);
-                    return;
-                }
-                ImageItem imageItem = ((ImageListAdapter) listView.getAdapter()).getItemAtPosition(checkedItemPosition);
-
-                mount(imageItem);
-
-            } else {
-
-                unmount(functionMode);
-
-
-            }
-        });
-
-        //  animation  = AnimationUtils.loadAnimation(getContext(),R.anim.rotate);
-
-        // animation.setRepeatCount(-1);
-        // animation.setDuration(2000);
 
         ImageButton refreshButton = view.findViewById(R.id.buttonRefresh);
 
         refreshButton.setOnClickListener((View v) -> {
-            populateList();
+            // populateList();
+            listViewAdapter.addItems(model.getImages(true).getValue());
             Toast.makeText(getContext(), "List updated!", Toast.LENGTH_LONG).show();
         });
 
@@ -234,27 +169,73 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageBu
         mySwipeRefreshLayout.setOnRefreshListener(
                 () -> {
 
-                    populateList();
+                    listViewAdapter.addItems(model.getImages(true).getValue());
                     mySwipeRefreshLayout.setRefreshing(false);
                     Toast.makeText(getContext(), "List updated!", Toast.LENGTH_LONG).show();
                 }
         );
 
 
+        SharedPreferences sharedPref = getContext().getSharedPreferences(null, Context.MODE_PRIVATE);
+        TextView textMode = view.findViewById(R.id.textMode);
+        textMode.setText(sharedPref.getString("usbMode", "Not Supported"));
+
+
+        List<String> modes = new ArrayList<>(Arrays.asList("Writable USB", "Read-only USB"));
+        if (sharedPref.getBoolean("cdrom", false)) {
+            modes.add("CD-ROM");
+        }
+
+        usbModeAdapter.clear();
+        usbModeAdapter.addAll(modes);
+        usbMode.setSelection(0);
+
+        TextView statusText = view.findViewById(R.id.statusText);
+        statusText.setText("Nothing mounted");
+        statusText.setTextColor(Color.LTGRAY);
+
+
+        model.getSelected().observe(this, image -> {
+            listViewAdapter.setSelectedItem(image);
+        });
+        model.getDownloading().observe(this, image -> {
+            Log.i("lala", "position: " + listViewAdapter.getPositionOfItem(image));
+            listViewAdapter.notifyItemChanged(listViewAdapter.getPositionOfItem(image), "download");
+        });
+        model.getRemoved().observe(this, image -> {
+            Log.i("lala", "REMOVEDDD");
+            File file = new File(image.getUserPath());
+            file.delete();
+            listViewAdapter.remove(image);
+        });
+        model.getAdded().observe(this, image -> {
+            Log.i("lala", "ADDEDDD");
+            listView.smoothScrollToPosition(listViewAdapter.addItem(image));
+        });
+        model.getMounted().observe(this, image -> {
+            if (image.getMounted()) {
+                Log.i("lala", "Mounted");
+                statusText.setText(image.getName() + " mounted");
+                statusText.setTextColor(Color.DKGRAY);
+                listViewAdapter.notifyItemChanged(listViewAdapter.getPositionOfItem(image), "mount");
+            } else {
+                Log.i("lala", "Unounted");
+                statusText.setText("Nothing mounted");
+                statusText.setTextColor(Color.LTGRAY);
+
+                listViewAdapter.notifyItemChanged(listViewAdapter.getPositionOfItem(image), "unmount");
+            }
+
+        });
+
+
         return view;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View v, Bundle b) {
-        populateList();
-
     }
 
     public void unmount(String functionMode) {
         (new BackgroundTask(getActivity())).setDelegate((successful, result) -> {
             if (successful) {
-                ((ImageListAdapter) listView.getAdapter()).setMountedItemPosition(-1);
-
+                model.unmount();
 
             } else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -265,8 +246,7 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageBu
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }
-            //((TextView)findViewById(R.id.editText)).append(result);
-        }).setTasks(new BaseTask[]{new UnmountingTask(functionMode)}).execute();
+        }).setTasks(new BaseTask[]{new UnmountingTask(functionMode, getContext())}).execute();
     }
 
     public void mount(ImageItem imageItem) {
@@ -279,8 +259,8 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageBu
         }
         (new BackgroundTask(getActivity())).setDelegate((successful, result) -> {
             if (successful) {
-                ((ImageListAdapter) listView.getAdapter()).setMountedItemPosition(((ImageListAdapter) listView.getAdapter()).getSelectedItemPosition());
-                //     ((ImageListAdapter)listView.getAdapter()).setSelectedItemPosition(-1);
+                model.mount(imageItem);
+
             } else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
@@ -290,7 +270,6 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageBu
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }
-            // ((TextView)findViewById(R.id.editText)).append(result);
         }).setTasks(new BaseTask[]{new MountImageTask(imageItem, usbMode.getSelectedItem().toString(), getContext())}).execute();
 
     }
@@ -299,19 +278,15 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageBu
     @Override
     public void onMountImageButtonClicked() {
 
-        int mountedItemPosition = ((ImageListAdapter) listView.getAdapter()).getMountedItemPosition();
-        int checkedItemPosition = ((ImageListAdapter) listView.getAdapter()).getSelectedItemPosition();
-
-        if (mountedItemPosition == checkedItemPosition) {
+        ImageItem mounted = model.getMounted().getValue();
+        ImageItem selected = model.getSelected().getValue();
+        if (mounted == null || !mounted.getMounted()) {
+            mount(selected);
+        } else if (mounted != selected) {
             unmount(functionMode);
-            toggleButton.setChecked(false);
-        } else if (mountedItemPosition != -1) {
-            unmount(functionMode);
-            mount(((ImageListAdapter) listView.getAdapter()).getItemAtPosition(checkedItemPosition));
-            toggleButton.setChecked(true);
+            mount(selected);
         } else {
-            mount(((ImageListAdapter) listView.getAdapter()).getItemAtPosition(checkedItemPosition));
-            toggleButton.setChecked(true);
+            unmount(functionMode);
         }
 
 
@@ -320,8 +295,7 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageBu
     @Override
     public void onDeleteImageButtonClicked() {
 
-        int checkedItemPosition = ((ImageListAdapter) listView.getAdapter()).getSelectedItemPosition();
-        ImageItem checkedItem = ((ImageListAdapter) listView.getAdapter()).getItemAtPosition(checkedItemPosition);
+        ImageItem checkedItem = model.getSelected().getValue();
 
         AlertDialog.Builder adb = new AlertDialog.Builder(getActivity());
 
@@ -334,12 +308,14 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageBu
 
 
         adb.setPositiveButton("Delete", (dialog, which) -> {
-            File file = new File(checkedItem.getUserPath());
-            file.delete();
+            if (checkedItem.getDownloadId() != -1) {
+                mainFetch.cancel(checkedItem.getDownloadId());
+                mainFetch.remove(checkedItem.getDownloadId());
+            }
+
             Toast.makeText(getContext(), "Deleted!", Toast.LENGTH_SHORT).show();
-            ((ImageListAdapter) listView.getAdapter()).setSelectedItemPosition(-1);
-            ((ImageListAdapter) listView.getAdapter()).remove(checkedItem);
-            //    ((ImageListAdapter)listView.getAdapter()).notifyItemRemoved(checkedItemPosition);
+            model.unselect();
+            model.remove(checkedItem);
         });
 
 
@@ -349,11 +325,15 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageBu
 
     }
 
+    @Override
+    public void onImageSelected(ImageItem item) {
+        model.select(item);
+    }
+
     public void createImage(ImageItem destFile) {
 
-
-        int index = listViewAdapter.addItem(destFile, false);
-        listView.smoothScrollToPosition(index);
+        model.unselect();
+        model.add(destFile);
 
 
         destFile.setDownloading(true);
@@ -392,9 +372,9 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageBu
                         if ((progress - oldProgress[0]) > 1) {
                             oldProgress[0] = progress;
 
-                            getActivity().runOnUiThread(() -> {
-                                listView.getAdapter().notifyItemChanged(listViewAdapter.getPositionOfItem(destFile), "download");
-                            });
+                            model.downloading(destFile);
+
+
                         }
 
 
@@ -430,11 +410,10 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageBu
                     Toast.makeText(getActivity(), "Image successfully created", Toast.LENGTH_LONG).show();
                     destFile.setDownloading(false);
                     destFile.setSize(Helper.humanReadableByteCount(finalSize));
-                    //  ((ImageListAdapter) listView.getAdapter()).setSelectedItemPosition(-1);
+                    model.downloading(destFile);
                     listView.smoothScrollToPosition(listViewAdapter.getPositionOfItem(destFile));
-                    listViewAdapter.notifyItemChanged(listViewAdapter.getPositionOfItem(destFile), "download");
 
-                    listView.postDelayed(() -> ((ImageListAdapter) listView.getAdapter()).setSelectedItemPosition(listViewAdapter.getPositionOfItem(destFile)), 500);
+                    model.select(destFile);
 
                 });
 
@@ -446,33 +425,24 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageBu
         createImageThread.start();
 
 
-        // ((ImageListAdapter)listView.getAdapter()).notifyDataSetChanged();
     }
 
-    public void setPopulate(boolean populate) {
-        this.populate = populate;
-    }
 
     public void addImage(ImageItem imageItem) {
 
-        if (mainFetch == null) {
-            mainFetch = new Fetch.Builder(getContext(), "Main")
-                    .setDownloadConcurrentLimit(4) // Allows Fetch to download 4 downloads in Parallel.
-                    .enableLogging(true)
-                    .build();
-            mainFetch.removeAll();
-            mainFetch.cancelAll();
 
-        }
+        model.unselect();
+        model.remove(imageItem);
+        model.add(imageItem);
 
-        // Helper.trustAllHosts();
         imageItem.setDownloading(true);
-        int position = listViewAdapter.addItem(imageItem, false);
-        listView.smoothScrollToPosition(position);
 
-        final Request request = new Request(imageItem.getRootPath(), USERPATH + "/" + imageItem.getName());
+
+        final Request request = new Request(imageItem.getUrl(), USERPATH + "/" + imageItem.getName());
         request.setPriority(Priority.HIGH);
         request.setNetworkType(NetworkType.WIFI_ONLY);
+
+        imageItem.setDownloadId(request.getId());
 
 
         final FetchListener fetchListener = new FetchListener() {
@@ -481,8 +451,8 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageBu
             @Override
             public void onQueued(@NotNull Download download) {
                 if (request.getId() == download.getId()) {
-                    imageItem.setUserPath(USERPATH + "/" + imageItem.getName());
-                    imageItem.setRootPath(ROOTPATH + "/" + imageItem.getName());
+
+
                 }
             }
 
@@ -490,25 +460,27 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageBu
             public void onCompleted(@NotNull Download download) {
                 imageItem.setDownloading(false);
                 imageItem.setSize(Helper.humanReadableByteCount(download.getTotal()));
+                model.downloading(imageItem);
+                listView.smoothScrollToPosition(listViewAdapter.getPositionOfItem(imageItem));
+                model.select(imageItem);
+
                 getActivity().runOnUiThread(() -> {
-                    listViewAdapter.notifyItemChanged(listViewAdapter.getPositionOfItem(imageItem));
                     Toast.makeText(getContext(), "Downloaded!", Toast.LENGTH_SHORT).show();
                 });
                 mainFetch.removeListener(this);
+                mainFetch.remove(download.getId());
             }
 
             @Override
             public void onError(@NotNull Download download) {
+                model.remove(imageItem);
 
                 getActivity().runOnUiThread(() -> {
                     File file = new File(imageItem.getUserPath());
                     file.delete();
                     Toast.makeText(getContext(), "Deleted!", Toast.LENGTH_SHORT).show();
-                    ((ImageListAdapter) listView.getAdapter()).setSelectedItemPosition(-1);
-                    ((ImageListAdapter) listView.getAdapter()).remove(imageItem);
                     mainFetch.removeListener(this);
-
-                    //listViewAdapter.notifyItemChanged(position, "download");
+                    mainFetch.remove(download.getId());
                 });
 
             }
@@ -524,9 +496,7 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageBu
                     imageItem.setSize(Helper.humanReadableByteCount(download.getDownloaded()) + " / " + Helper.humanReadableByteCount(download.getTotal()) + " - " + Helper.humanReadableByteCount(downloadedBytesPerSecond) + "/s");
 
 
-                    getActivity().runOnUiThread(() -> {
-                        listViewAdapter.notifyItemChanged(listViewAdapter.getPositionOfItem(imageItem), "download");
-                    });
+                    model.downloading(imageItem);
 
 
                     final int progress = download.getProgress();

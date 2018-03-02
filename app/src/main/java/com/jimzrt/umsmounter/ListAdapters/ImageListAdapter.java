@@ -7,11 +7,9 @@ import android.graphics.Color;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -22,7 +20,6 @@ import com.jimzrt.umsmounter.Model.ImageItem;
 import com.jimzrt.umsmounter.R;
 import com.jimzrt.umsmounter.Utils.Helper;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.ViewHolder> implements View.OnClickListener {
@@ -314,7 +311,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
 
     public void remove(ImageItem checkedItem) {
         //animationMap.remove(dataSet.indexOf(checkedItem));
-        setSelectedItemPosition(-1);
+        //   setSelectedItemPosition(-1);
         dataSet.remove(checkedItem);
     }
 
@@ -322,38 +319,50 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
     public void onClick(View v) {
         int itemPosition = mRecyclerView.getChildLayoutPosition(v);
 
-        setSelectedItemPosition(itemPosition);
+        //setSelectedItemPosition(itemPosition);
+        ImageItem item = dataSet.get(itemPosition);
+        mCallback.onImageSelected(item);
 
     }
 
 
-    public void addItems(ArrayList<ImageItem> list) {
+    public void addItems(List<ImageItem> list) {
 
-        dataSet.beginBatchedUpdates();
+        // dataSet.beginBatchedUpdates();
+        //   dataSet.clear();
+
+        //    dataSet.beginBatchedUpdates();
+        for (int j = 0; j < dataSet.size(); j++) {
+            if (!list.contains(dataSet.get(j))) {
+                dataSet.remove(dataSet.get(j));
+            }
+        }
+        //     if(dataSet.size() == 0){
+
         for (int i = 0; i < list.size(); i++) {
-            dataSet.add(list.get(i));
+            //  addItem(list.get(i), false);
+            if (!contains(list.get(i))) {
+                dataSet.add(list.get(i));
+            }
         }
-        dataSet.endBatchedUpdates();
+//        }
+
+
+        // dataSet.endBatchedUpdates();
 
     }
 
-    public int addItem(ImageItem imageItem, boolean selected) {
-        setSelectedItemPosition(-1);
+    public int addItem(ImageItem imageItem) {
+
+
+        //   setSelectedItemPosition(-1);
         int position = dataSet.add(imageItem);
-        if (selected) {
 
-            mRecyclerView.postDelayed(new Runnable() {
-
-                @Override
-                public void run() {
-                    setSelectedItemPosition(position);
-                }
-
-            }, 1000);
-
-
-        }
         return position;
+        //   } else {
+        //        return dataSet.indexOf(imageItem);
+        //    }
+        //   return 0;
     }
 
     public boolean contains(ImageItem item) {
@@ -364,10 +373,24 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
         return dataSet.indexOf(imageItem);
     }
 
-    public interface OnImageButtonListener {
+    public void setSelectedItem(ImageItem selectedItem) {
+        if (selectedItem == null) {
+            setSelectedItemPosition(-1);
+        } else {
+            int position = dataSet.indexOf(selectedItem);
+            setSelectedItemPosition(position);
+        }
+
+        //this.selectedItem = selectedItem;
+    }
+
+    public interface OnImageListListener {
+
         void onMountImageButtonClicked();
 
         void onDeleteImageButtonClicked();
+
+        void onImageSelected(ImageItem item);
     }
 
 
@@ -391,18 +414,13 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
 
     private SortedList<ImageItem> dataSet;
     Context mContext;
-    OnImageButtonListener mCallback;
+    OnImageListListener mCallback;
 
 
     private int lastSelected = -1;
 
 
-    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-        setSelectedItemPosition(position);
-
-    }
-
-    public void setSelectedItemPosition(int position) {
+    private void setSelectedItemPosition(int position) {
         //notifyDataSetChanged();
         if (position == -1) {
             if (lastSelected == -1) {
@@ -426,7 +444,6 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
         }
         dataSet.get(position).setSelected(true);
         notifyItemChanged(position, "aufklappen");
-        Log.i("lala", "shoukld aufklappen1");
         lastSelected = position;
     }
 
@@ -435,7 +452,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
     }
 
 
-    public ImageListAdapter(ArrayList<ImageItem> data, Context context, OnImageButtonListener listener) {
+    public ImageListAdapter(List<ImageItem> data, Context context, OnImageListListener listener) {
         // super(context, R.layout.row_item, data);
         this.dataSet = new SortedList<>(ImageItem.class, new SortedList.Callback<ImageItem>() {
             @Override
@@ -478,11 +495,14 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
             }
         });
 
-        dataSet.beginBatchedUpdates();
-        for (int i = 0; i < data.size(); i++) {
-            dataSet.add(data.get(i));
+        if (data != null) {
+            dataSet.beginBatchedUpdates();
+            for (int i = 0; i < data.size(); i++) {
+                dataSet.add(data.get(i));
+            }
+            dataSet.endBatchedUpdates();
         }
-        dataSet.endBatchedUpdates();
+
 
 
         this.mContext = context;

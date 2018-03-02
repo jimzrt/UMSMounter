@@ -5,8 +5,24 @@ public class ImageItem implements Comparable<ImageItem> {
     private String name;
     private String rootPath;
     private String userPath;
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    private String url;
     private boolean downloading;
     private int progress;
+    private int downloadId = -1;
+
+    public void setDownloadId(int downloadId) {
+        this.downloadId = downloadId;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -109,5 +125,9 @@ public class ImageItem implements Comparable<ImageItem> {
 
     public void setRootPath(String rootPath) {
         this.rootPath = rootPath;
+    }
+
+    public int getDownloadId() {
+        return downloadId;
     }
 }

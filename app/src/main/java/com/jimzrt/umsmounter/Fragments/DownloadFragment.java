@@ -65,7 +65,9 @@ public class DownloadFragment extends Fragment {
                 }
             } else {
 
-                try (Reader reader = new InputStreamReader(new URL("http://pelzekaufen.de/main.json").openStream())) {
+                //  try (Reader reader = new InputStreamReader(new URL("http://pelzekaufen.de/main.json").openStream())) {
+                try (Reader reader = new InputStreamReader(new URL("http://softwarebakery.com/apps/drivedroid/repositories/distrowatch.json").openStream())) {
+
                     // Reader reader = new InputStreamReader(new URL("http://pelzekaufen.de/main.json").openStream());
 
                     Gson gson = new GsonBuilder().create();

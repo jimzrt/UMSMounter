@@ -3,6 +3,7 @@ package com.jimzrt.umsmounter.Fragments;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.StatFs;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -58,12 +59,46 @@ public class ImageCreationFragment extends Fragment {
         // ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         //((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        TextView nameTextView = view.findViewById(R.id.imageName);
+        TextView sizeTextView = view.findViewById(R.id.imageSize);
 
+        StatFs stat = new StatFs(MainFragment.USERPATH);
+        long bytesAvailable = stat.getBlockSizeLong() * stat.getAvailableBlocksLong();
+
+        TextView freeSpaceView = view.findViewById(R.id.freeSpaceView);
+        freeSpaceView.setText("Free Space: " + Helper.humanReadableByteCount(bytesAvailable));
 
 
         button.setOnClickListener(view1 -> {
             InputMethodManager inputManager = (InputMethodManager)
                     getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+
+
+            String nameText = nameTextView.getText().toString();
+            if (nameText.isEmpty()) {
+                nameTextView.requestFocus();
+                nameTextView.setError("Cannot be empty");
+                return;
+            }
+
+            String sizeText = sizeTextView.getText().toString();
+            if (sizeText.isEmpty()) {
+                sizeTextView.requestFocus();
+                sizeTextView.setError("Cannot be empty");
+                return;
+            }
+            if ((Long.parseLong(sizeText) * 1024L * 1024L) > bytesAvailable) {
+                sizeTextView.requestFocus();
+                sizeTextView.setError("Not enough space");
+                return;
+            }
+            if (Integer.parseInt(sizeText) < 2) {
+                sizeTextView.requestFocus();
+                sizeTextView.setError("At least 2 MB");
+                return;
+            }
+
+
             if (inputManager != null) {
                 inputManager.hideSoftInputFromWindow((null == getActivity().getCurrentFocus()) ? null : getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
             }
@@ -97,7 +132,7 @@ public class ImageCreationFragment extends Fragment {
 
                     Shell.Sync.sh("busybox truncate -s" + imageSize + "M " + cacheDir + "/tmp.img", "echo \"o\\nn\\np\\n1\\n2\\n\\nt\\nc\\na\\n1\\nw\\n\" | busybox fdisk -S 32 -H 64 " + cacheDir + "/tmp.img", "busybox dd if=" + cacheDir + "/tmp.img of=" + MainFragment.ROOTPATH + "/" + imageName + " bs=512 count=2048", "rm " + cacheDir + "/tmp.img", "busybox truncate -s" + (imageSize - 1) + "M " + cacheDir + "/fat.img", "busybox mkfs.vfat -n DRIVE " + cacheDir + "/fat.img", "chmod 0755 " + cacheDir + "/fat.img");
                     getActivity().runOnUiThread(() -> {
-                        barProgressDialog.setMessage("Creating Image...");
+                        barProgressDialog.setProgress(100);
                     });
 
 

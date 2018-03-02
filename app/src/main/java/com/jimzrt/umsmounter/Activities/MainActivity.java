@@ -1,6 +1,5 @@
 package com.jimzrt.umsmounter.Activities;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -101,9 +100,18 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
             // Intent, pass the Intent's extras to the fragment as arguments
             // firstFragment.setArguments(getIntent().getExtras());
 
-            // Add the fragment to the 'fragment_container' FrameLayout
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, mainFragment).commit();
+            SharedPreferences sharedPref = getSharedPreferences(null, Context.MODE_PRIVATE);
+            boolean firstRun = sharedPref.getBoolean("firstRun", true);
+            if (firstRun) {
+                checkAll();
+            } else {
+                // Add the fragment to the 'fragment_container' FrameLayout
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.fragment_container, mainFragment).commit();
+            }
+
+
+
         }
 
         currentFragment = mainFragment;
@@ -127,7 +135,6 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
                                 Toast.makeText(this, "Already on this mothafucka", Toast.LENGTH_LONG).show();
                             }
                             break;
-                        //KEEP CURRENT FRAGMENT ID
                         case R.id.nav_create_image:
                             if (currentFragment != createImageFragment) {
                                 showCreateImage();
@@ -167,46 +174,9 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
                         navigationView.setCheckedItem(-1);
                         currentFragment = downloadFragment;
                     }
-                    // String tag = getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName();
-                    //  currentFragment =  getSupportFragmentManager().findFragmentByTag(tag);
-                    //    if (tag == mainFragment.getTag()) {
-                    //          navigationView.setCheckedItem(R.id.nav_home);
-                    //     } else if(tag == createImageFragment.getTag()){
-                    //            navigationView.setCheckedItem(R.id.nav_create_image);
+
                 });
-//        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-//                R.string.drawer_open, R.string.drawer_close) {
-//
-//            public void onDrawerOpened(View drawerView) {
-//                super.onDrawerOpened(drawerView);
-//                getSupportActionBar().setTitle("Navigation!");
-//                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-//            }
-//
-//            /** Called when a drawer has settled in a completely closed state. */
-//            public void onDrawerClosed(View view) {
-//                super.onDrawerClosed(view);
-//                getSupportActionBar().setTitle("Yo");
-//                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-//            }
-//
-//        };
 
-//        mDrawerToggle.setDrawerIndicatorEnabled(true);
-        //  mDrawerLayout.addDrawerListener(mDrawerToggle);
-
-
-        //  SharedPreferences sharedPref = getSharedPreferences(null, Context.MODE_PRIVATE);
-        //  boolean firstRun = sharedPref.getBoolean("firstRun", true);
-        //    if(firstRun) {
-        //        checkAll();
-        //        mainFragment.setPopulate(true);
-
-        //   } else {
-
-        //      mainFragment.setPopulate(true);
-
-        //     }
 
         Helper.trustAllHosts();
     }
@@ -286,22 +256,12 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
 
-        //   if (mDrawerToggle.onOptionsItemSelected(item)) {
-        //       return true;
-
-
-        //    }
         switch (id) {
             case R.id.action_revert:
                 mainFragment.unmount("mtp,adb");
-                if (mainFragment.isAdded()) {
-                    mainFragment.toggleButton.setChecked(false);
-                }
                 return true;
             case R.id.action_check_dependencies:
                 checkAll();
@@ -318,20 +278,23 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 
 
     void checkAll() {
-        //refreshButton.setAnimation(animation);
-        //  refreshButton.startAnimation(animation);
+
 
         SharedPreferences sharedPref = getSharedPreferences(null, Context.MODE_PRIVATE);
         (new BackgroundTask(this).setDelegate((successful, output) -> {
-            //  refreshButton.clearAnimation();
             if (successful) {
-
-                //  populateList();
 
 
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putBoolean("firstRun", false);
                 editor.apply();
+
+                if (!mainFragment.isAdded()) {
+                    // Add the fragment to the 'fragment_container' FrameLayout
+                    getSupportFragmentManager().beginTransaction()
+                            .add(R.id.fragment_container, mainFragment).commit();
+                }
+
 
             } else {
                 SharedPreferences.Editor editor = sharedPref.edit();
@@ -344,14 +307,12 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }
-            // ((TextView)findViewById(R.id.editText)).append(output);
         })).setTasks(new BaseTask[]{new CheckRootTask(), new CheckFolderTask(), new CheckMassStorageTask(this)}).execute();
     }
 
     @Override
     public void OnImageCreation(String imageItemName) {
         showMain();
-        //mainFragment.populateList();
         ImageItem imageItem = new ImageItem(imageItemName, MainFragment.ROOTPATH + "/" + imageItemName, MainFragment.USERPATH + "/" + imageItemName, Helper.humanReadableByteCount(0));
         mainFragment.createImage(imageItem);
 
@@ -372,12 +333,6 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 
     }
 
-    @SuppressLint("MissingSuperCall")
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        //No call for super(). Bug on API Level > 11.
-    }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -389,15 +344,11 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 //
                 String name = data.getStringExtra("name");
                 String url = data.getStringExtra("url");
-                ImageItem imageItem = new ImageItem(name, url, url, Helper.humanReadableByteCount(0));
-
+                ImageItem imageItem = new ImageItem(name, MainFragment.ROOTPATH + "/" + name, MainFragment.USERPATH + "/" + name, Helper.humanReadableByteCount(0));
+                imageItem.setUrl(url);
                 showMain();
                 mainFragment.addImage(imageItem);
 
-                // The user picked a contact.
-                // The Intent's data Uri identifies which contact was selected.
-
-                // Do something with the contact here (bigger example below)
             }
         }
     }

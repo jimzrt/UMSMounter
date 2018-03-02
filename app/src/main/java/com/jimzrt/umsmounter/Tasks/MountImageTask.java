@@ -6,8 +6,6 @@ import android.content.SharedPreferences;
 import com.jimzrt.umsmounter.Model.ImageItem;
 import com.topjohnwu.superuser.Shell;
 
-import java.util.List;
-
 
 public class MountImageTask extends BaseTask {
 
@@ -56,41 +54,43 @@ public class MountImageTask extends BaseTask {
 
         SharedPreferences sharedPref = ctx.getSharedPreferences(null, Context.MODE_PRIVATE);
         String usbMode = sharedPref.getString("usbMode", "Not supported");
-
-
-        // File configsPath = new File("/config/usb_gadget/g1/functions/mass_storage.0/lun.0");
-        if (usbMode.equals("configfs")) {
-
-            Shell.Sync.sh("setprop sys.usb.config none",
-                    "echo \"\" > /config/usb_gadget/g1/UDC",
-                    "echo " + removable + " > /config/usb_gadget/g1/functions/mass_storage.0/lun.0/removable",
-                    "echo " + ro + " > /config/usb_gadget/g1/functions/mass_storage.0/lun.0/ro",
-                    "echo " + cdrom + " > /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom",
-                    "echo \"" + imageItem.getRootPath() + "\" > /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file",
-                    "setprop sys.usb.config mass_storage");
-            this.result = imageItem.getName() + " mounted!\n";
-            this.successful = true;
-
-        } else if (usbMode.equals("android_usb")) {
-            String usb = "/sys/class/android_usb/android0";
-            List<String> test = Shell.Sync.sh("setprop sys.usb.config none",
-                    "echo > " + usb + "/f_mass_storage/lun/file",
-                    // "echo 0 > " + usb + "/enable",
-                    //  "echo mass_storage > " + usb + "/functions",
-                    //  "echo disk > " + usb + "/f_mass_storage/luns",
-                    //"echo \"\" > /config/usb_gadget/g1/UDC",
-                    // "echo " + removable + " > " + usb + "/f_mass_storage/lun/removable",
-                    "echo " + ro + " > " + usb + "/f_mass_storage/lun/ro",
-                    ///  "echo " + cdrom + " > " + usb + "/f_mass_storage/lun/cdrom",
-                    "echo " + imageItem.getRootPath() + " > " + usb + "/f_mass_storage/lun/file",
-                    // "echo 1 > " + usb + "/enable"
-                    "setprop sys.usb.config mass_storage");
-
-            this.result = imageItem.getName() + " mounted!\n";
-            this.successful = true;
-        } else {
-            this.result = "not mounted!\n";
+        String usbPath = sharedPref.getString("usbPath", "Not supported");
+        boolean cdRomSupport = sharedPref.getBoolean("cdrom", false);
+        if (usbPath.equals("Not supported") || usbMode.equals("Not supported")) {
             this.successful = false;
+            this.result = "not mounted!\n";
+            return;
+        }
+
+
+        switch (usbMode) {
+            case "configfs":
+                Shell.Sync.sh("setprop sys.usb.config none",
+                        "echo \"\" > /config/usb_gadget/g1/UDC",
+                        "echo " + removable + " > " + usbPath + "/removable",
+                        "echo " + ro + " > " + usbPath + "/ro",
+                        "echo " + cdrom + " > " + usbPath + "/cdrom",
+                        "echo \"" + imageItem.getRootPath() + "\" > " + usbPath + "/file",
+                        "setprop sys.usb.config mass_storage");
+                this.result = imageItem.getName() + " mounted!\n";
+                this.successful = true;
+
+                break;
+            case "android_usb":
+                Shell.Sync.sh("setprop sys.usb.config none",
+                        "echo > " + usbPath + "/file",
+                        "echo " + ro + " > " + usbPath + "/ro",
+                        "echo " + cdrom + " >  " + usbPath + "/cdrom",
+                        "echo " + imageItem.getRootPath() + " > " + usbPath + "/file",
+                        "setprop sys.usb.config mass_storage");
+
+                this.result = imageItem.getName() + " mounted!\n";
+                this.successful = true;
+                break;
+            default:
+                this.result = "not mounted!\n";
+                this.successful = false;
+                break;
         }
 
 

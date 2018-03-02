@@ -11,11 +11,11 @@
             android:title="Create Image" />
         <item
             android:id="@+id/nav_download_image"
-            android:icon="@android:drawable/ic_menu_slideshow"
+            android:icon="@android:drawable/ic_menu_save"
             android:title="Download Image" />
         <item
             android:id="@+id/nav_credits"
-            android:icon="@android:drawable/ic_menu_manage"
+            android:icon="@android:drawable/ic_menu_info_details"
             android:title="Credits" />
     </group>
 </menu>

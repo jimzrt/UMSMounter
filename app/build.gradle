@@ -1,13 +1,21 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'key0'
+            keyPassword '***REMOVED***'
+            storeFile file('/home/james/android_key/key.jks')
+            storePassword '***REMOVED***'
+        }
+    }
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.jimzrt.umsmounter"
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
-        versionName "1.0"
+        versionName "0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -27,7 +35,7 @@ repositories {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:support-v13:27.1.0'
     implementation 'com.android.support:appcompat-v7:27.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
@@ -37,8 +45,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     implementation 'com.github.topjohnwu:libsu:1.1.1'
     compile 'com.google.code.gson:gson:2.8.2'
-    implementation "com.tonyodev.fetch2:fetch2:2.0.0-RC8"
-
-
-
+    implementation 'com.tonyodev.fetch2:fetch2:2.0.0-RC8'
+    implementation 'android.arch.lifecycle:extensions:1.1.0'
 }
