@@ -4,9 +4,7 @@ android {
     signingConfigs {
         config {
             keyAlias 'key0'
-            keyPassword '***REMOVED***'
             storeFile file('/home/james/android_key/key.jks')
-            storePassword '***REMOVED***'
         }
     }
     compileSdkVersion 27
