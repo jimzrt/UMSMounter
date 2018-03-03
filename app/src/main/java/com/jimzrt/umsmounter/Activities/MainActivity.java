@@ -307,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }
-        })).setTasks(new BaseTask[]{new CheckRootTask(), new CheckFolderTask(), new CheckMassStorageTask(this)}).execute();
+        })).setTasks(new BaseTask[]{new CheckRootTask(), new CheckFolderTask(), new CheckMassStorageTask()}).execute();
     }
 
     @Override

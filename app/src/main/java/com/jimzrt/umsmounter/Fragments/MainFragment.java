@@ -246,7 +246,7 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }
-        }).setTasks(new BaseTask[]{new UnmountingTask(functionMode, getContext())}).execute();
+        }).setTasks(new BaseTask[]{new UnmountingTask(functionMode)}).execute();
     }
 
     public void mount(ImageItem imageItem) {
@@ -270,7 +270,7 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }
-        }).setTasks(new BaseTask[]{new MountImageTask(imageItem, usbMode.getSelectedItem().toString(), getContext())}).execute();
+        }).setTasks(new BaseTask[]{new MountImageTask(imageItem, usbMode.getSelectedItem().toString())}).execute();
 
     }
 

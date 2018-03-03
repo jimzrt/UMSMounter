@@ -9,18 +9,12 @@ import com.jimzrt.umsmounter.Tasks.BaseTask;
 import java.lang.ref.WeakReference;
 
 public class BackgroundTask extends AsyncTask<Void, Void, Void> {
+    WeakReference<Activity> mWeakActivity;
+    AsyncResponse delegate = null;
+    String errorMessage;
+    boolean successful = true;
     private ProgressDialog dialog = null;
     private BaseTask[] tasks = null;
-    WeakReference<Activity> mWeakActivity;
-
-    // you may separate this or combined to caller class.
-    public interface AsyncResponse {
-        void processFinish(Boolean successful, String output);
-    }
-
-    AsyncResponse delegate = null;
-
-
     public BackgroundTask(Activity activity) {
         mWeakActivity = new WeakReference<>(activity);
     }
@@ -30,12 +24,10 @@ public class BackgroundTask extends AsyncTask<Void, Void, Void> {
         return this;
     }
 
-
     public BackgroundTask setTasks(BaseTask[] tasks) {
         this.tasks = tasks;
         return this;
     }
-
 
     @Override
     protected void onPreExecute() {
@@ -62,13 +54,23 @@ public class BackgroundTask extends AsyncTask<Void, Void, Void> {
                     dialog.setMessage(finalDescription);
 
                 });
-                task.execute();
+
                 String success;
-                if (task.successful) {
+                task.setContext(mWeakActivity);
+                if (task.execute()) {
                     success = "✓";
                     // break;
                 } else {
                     success = "✗";
+                    description.append(success);
+                    String finalDescription2 = description.toString();
+                    mWeakActivity.get().runOnUiThread(() -> {
+                        dialog.setMessage(finalDescription2);
+
+                    });
+                    successful = false;
+                    errorMessage = task.getResult();
+                    break;
                 }
 
                 description.append(success);
@@ -85,9 +87,6 @@ public class BackgroundTask extends AsyncTask<Void, Void, Void> {
 
                 newline = "\n";
 
-                if (!task.successful) {
-                    break;
-                }
 
             }
 
@@ -104,25 +103,27 @@ public class BackgroundTask extends AsyncTask<Void, Void, Void> {
 
         if (delegate != null) {
             StringBuilder results = new StringBuilder();
-            Boolean success = true;
             StringBuilder errorString = new StringBuilder();
+
             for (BaseTask task : tasks) {
-                if (!task.successful) {
-                    success = false;
-                    errorString.append(task.getResult()).append("\n");
-                    break;
-                }
                 results.append(task.getResult());
             }
-            if (success) {
+
+
+            if (successful) {
                 delegate.processFinish(true, results.toString());
 
             } else {
-                delegate.processFinish(false, errorString.toString());
+                delegate.processFinish(false, errorMessage);
             }
 
         }
 
+    }
+
+    // you may separate this or combined to caller class.
+    public interface AsyncResponse {
+        void processFinish(Boolean successful, String output);
     }
 
 

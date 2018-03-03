@@ -10,13 +10,13 @@ public class CheckRootTask extends BaseTask {
         this.description = "Checking root...";
     }
     @Override
-    public void execute() {
+    public boolean execute() {
         if(Shell.rootAccess()){
-           this.successful = true;
            this.result ="Root working!\n";
+            return true;
         } else {
-            this.successful = false;
             this.result ="Root not working!\n";
+            return false;
         }
 
 

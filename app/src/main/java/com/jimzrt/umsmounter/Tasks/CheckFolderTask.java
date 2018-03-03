@@ -13,7 +13,7 @@ public class CheckFolderTask extends BaseTask {
         this.description = "Checking Folders...";
     }
     @Override
-    public void execute() {
+    public boolean execute() {
 
         String path = Environment.getExternalStorageDirectory().toString()+"/UMSMounter";
         File f = new File(path);
@@ -29,7 +29,7 @@ public class CheckFolderTask extends BaseTask {
                     this.result = "Found path " + path + " with " + files.length + " files.\n";
                 }
 
-        this.successful = true;
+        return true;
 
 
     }

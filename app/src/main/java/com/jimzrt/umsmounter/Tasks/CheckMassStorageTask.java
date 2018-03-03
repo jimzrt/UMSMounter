@@ -7,15 +7,14 @@ import java.io.File;
 
 public class CheckMassStorageTask extends BaseTask {
 
-    public CheckMassStorageTask(Context ctx){
-        super(ctx);
+    public CheckMassStorageTask() {
         this.name = "Checking mass_storage";
         this.description = "Checking mass_storage support...";
     }
 
     @Override
-    public void execute() {
-        SharedPreferences sharedPref = ctx.getSharedPreferences(null,Context.MODE_PRIVATE);
+    public boolean execute() {
+        SharedPreferences sharedPref = this.ctx.get().getSharedPreferences(null, Context.MODE_PRIVATE);
 
 
 
@@ -28,7 +27,6 @@ public class CheckMassStorageTask extends BaseTask {
 
         if (configfsDir.exists() && configfsDir.isDirectory()) {
                     this.result = "mass_storage via configfs supported!\n";
-                    this.successful = true;
                     editor.putString("usbMode", "configfs");
             editor.putString("usbPath", configfsDir.getAbsolutePath());
 
@@ -39,6 +37,7 @@ public class CheckMassStorageTask extends BaseTask {
                         editor.putBoolean("cdrom", false);
                     }
                     editor.apply();
+            return true;
                 } else if(usbDir.exists() && usbDir.isDirectory()) {
                     this.result = "mass_storage via android_usb supported!\n";
                     editor.putString("usbMode", "android_usb");
@@ -49,8 +48,8 @@ public class CheckMassStorageTask extends BaseTask {
                     } else {
                         editor.putBoolean("cdrom", false);
                     }
-                    this.successful = true;
                     editor.apply();
+            return true;
 
         } else if (usbDir2.exists() && usbDir2.isDirectory()) {
             this.result = "mass_storage via android_usb supported!\n";
@@ -63,13 +62,11 @@ public class CheckMassStorageTask extends BaseTask {
             } else {
                 editor.putBoolean("cdrom", false);
             }
-            this.successful = true;
             editor.apply();
-
+            return true;
         } else {
-                    this.successful = false;
                     this.result = "mass_storage not supported!\n";
-
+            return false;
                 }
 
 

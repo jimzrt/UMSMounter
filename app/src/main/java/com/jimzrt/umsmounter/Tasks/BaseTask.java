@@ -1,18 +1,18 @@
 package com.jimzrt.umsmounter.Tasks;
 
 
-import android.content.Context;
+import android.app.Activity;
+
+import java.lang.ref.WeakReference;
 
 public abstract class BaseTask {
 
-    protected Context ctx;
+    //  Context ctx;
     protected String name;
     protected String description;
-    public boolean successful;
+    String result;
+    WeakReference<Activity> ctx;
 
-    public BaseTask(Context ctx) {
-        this.ctx = ctx;
-    }
 
     public BaseTask() {
     }
@@ -25,12 +25,14 @@ public abstract class BaseTask {
         return description;
     }
 
+
+    public abstract boolean execute();
+
     public String getResult() {
         return result;
     }
 
-    protected String result;
-
-    public abstract void execute();
-
+    public void setContext(WeakReference<Activity> context) {
+        this.ctx = context;
+    }
 }

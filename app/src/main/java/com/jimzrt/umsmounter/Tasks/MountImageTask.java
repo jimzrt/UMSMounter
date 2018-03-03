@@ -11,19 +11,17 @@ public class MountImageTask extends BaseTask {
 
     private ImageItem imageItem;
     private String mode;
-    private Context ctx;
 
-    public MountImageTask(ImageItem imageItem, String mode, Context ctx) {
+    public MountImageTask(ImageItem imageItem, String mode) {
         this.name = "Mounting";
         this.description = "Mounting " + imageItem.getName() + " in " + mode.toLowerCase() + " mode...";
         this.imageItem = imageItem;
         this.mode = mode;
-        this.ctx = ctx;
     }
 
 
     @Override
-    public void execute() {
+    public boolean execute() {
         String removable = "";
         String ro = "";
         String cdrom = "";
@@ -46,20 +44,18 @@ public class MountImageTask extends BaseTask {
                 break;
             default:
                 this.result = "Unknown Mode!";
-                this.successful = false;
-                return;
+                return false;
 
         }
 
 
-        SharedPreferences sharedPref = ctx.getSharedPreferences(null, Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = this.ctx.get().getSharedPreferences(null, Context.MODE_PRIVATE);
         String usbMode = sharedPref.getString("usbMode", "Not supported");
         String usbPath = sharedPref.getString("usbPath", "Not supported");
         boolean cdRomSupport = sharedPref.getBoolean("cdrom", false);
         if (usbPath.equals("Not supported") || usbMode.equals("Not supported")) {
-            this.successful = false;
             this.result = "not mounted!\n";
-            return;
+            return false;
         }
 
 
@@ -73,9 +69,8 @@ public class MountImageTask extends BaseTask {
                         "echo \"" + imageItem.getRootPath() + "\" > " + usbPath + "/file",
                         "setprop sys.usb.config mass_storage");
                 this.result = imageItem.getName() + " mounted!\n";
-                this.successful = true;
+                return true;
 
-                break;
             case "android_usb":
                 Shell.Sync.sh("setprop sys.usb.config none",
                         "echo > " + usbPath + "/file",
@@ -85,12 +80,10 @@ public class MountImageTask extends BaseTask {
                         "setprop sys.usb.config mass_storage");
 
                 this.result = imageItem.getName() + " mounted!\n";
-                this.successful = true;
-                break;
+                return true;
             default:
                 this.result = "not mounted!\n";
-                this.successful = false;
-                break;
+                return false;
         }
 
 
