@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1017806373223",
+    "firebase_url": "https://ums-mounter.firebaseio.com",
+    "project_id": "ums-mounter",
+    "storage_bucket": "ums-mounter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1017806373223:android:25786c3db369fdf6",
+        "android_client_info": {
+          "package_name": "com.jimzrt.umsmounter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1017806373223-63oi8ce7fef9bh14304nciekf32in844.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSSvq3EUXEKf8hopVT_U3FNTeMBNMURU8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

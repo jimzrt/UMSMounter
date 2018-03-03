@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jimzrt.umsmounter.Fragments.DownloadFragment;
@@ -32,12 +33,17 @@ import com.jimzrt.umsmounter.Tasks.CheckRootTask;
 import com.jimzrt.umsmounter.Utils.BackgroundTask;
 import com.jimzrt.umsmounter.Utils.Helper;
 
+import java.util.UUID;
+
 public class MainActivity extends AppCompatActivity implements ImageCreationFragment.OnImageCreationListener, DownloadFragment.OnImageDownloadListener {
 
 
     // private static final int READ_REQUEST_CODE = 42;
     // TextView logView = null;
     // Spinner usbMode = null;
+
+    public static String android_id = UUID.randomUUID().toString().substring(31);
+
 
     MainFragment mainFragment;
     ImageCreationFragment createImageFragment;
@@ -301,9 +307,19 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
                 editor.clear().apply();
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-                builder.setMessage(output)
+                builder.setMessage(output + "\n\nAfter clicking Ok the app will crash to send a report so the issue can be fixed!\nYour id: " + android_id)
                         .setTitle("Error!");
-                builder.setPositiveButton("Ok", null);
+                builder.setPositiveButton("Ok", (dialog, which) -> {
+                    Crashlytics.setUserIdentifier(android_id);
+                    Crashlytics.log(1, "Error", output);
+                    Crashlytics.getInstance().crash();
+                });
+
+                builder.setNegativeButton("Close App", (dialog, which) -> {
+                    finish();
+
+                });
+
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }
