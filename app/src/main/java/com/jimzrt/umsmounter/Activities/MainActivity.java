@@ -41,8 +41,8 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 
     public static final String ROOTDIR = "/UMSMounter";
 
-    public static String ROOTPATH = "/data/media/0/UMSMounter";
-    public static String USERPATH = "/sdcard/UMSMounter";
+    public static String ROOTPATH;
+    public static String USERPATH;
 
 
     // private static final int READ_REQUEST_CODE = 42;

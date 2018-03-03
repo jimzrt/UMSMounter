@@ -29,7 +29,7 @@ public class CheckFolderTask extends BaseTask {
                     this.result = "Found path " + path + " with " + files.length + " files.\n";
                 }
 
-        return false;
+        return true;
 
 
     }
