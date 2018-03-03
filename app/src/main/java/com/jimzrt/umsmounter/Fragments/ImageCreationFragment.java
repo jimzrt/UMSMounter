@@ -14,6 +14,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.jimzrt.umsmounter.Activities.MainActivity;
 import com.jimzrt.umsmounter.R;
 import com.jimzrt.umsmounter.Utils.Helper;
 import com.topjohnwu.superuser.Shell;
@@ -21,12 +22,7 @@ import com.topjohnwu.superuser.Shell;
 
 public class ImageCreationFragment extends Fragment {
 
-    public interface OnImageCreationListener {
-        void OnImageCreation(String imageItem);
-    }
-
     OnImageCreationListener mCallback;
-
 
     @Override
     public void onAttach(Context context) {
@@ -62,7 +58,7 @@ public class ImageCreationFragment extends Fragment {
         TextView nameTextView = view.findViewById(R.id.imageName);
         TextView sizeTextView = view.findViewById(R.id.imageSize);
 
-        StatFs stat = new StatFs(MainFragment.USERPATH);
+        StatFs stat = new StatFs(MainActivity.USERPATH);
         long bytesAvailable = stat.getBlockSizeLong() * stat.getAvailableBlocksLong();
 
         TextView freeSpaceView = view.findViewById(R.id.freeSpaceView);
@@ -130,7 +126,7 @@ public class ImageCreationFragment extends Fragment {
 
                     String cacheDir = getContext().getCacheDir().getAbsolutePath();
 
-                    Shell.Sync.sh("busybox truncate -s" + imageSize + "M " + cacheDir + "/tmp.img", "echo \"o\\nn\\np\\n1\\n2\\n\\nt\\nc\\na\\n1\\nw\\n\" | busybox fdisk -S 32 -H 64 " + cacheDir + "/tmp.img", "busybox dd if=" + cacheDir + "/tmp.img of=" + MainFragment.ROOTPATH + "/" + imageName + " bs=512 count=2048", "rm " + cacheDir + "/tmp.img", "busybox truncate -s" + (imageSize - 1) + "M " + cacheDir + "/fat.img", "busybox mkfs.vfat -n DRIVE " + cacheDir + "/fat.img", "chmod 0755 " + cacheDir + "/fat.img");
+                    Shell.Sync.sh("busybox truncate -s" + imageSize + "M " + cacheDir + "/tmp.img", "echo \"o\\nn\\np\\n1\\n2\\n\\nt\\nc\\na\\n1\\nw\\n\" | busybox fdisk -S 32 -H 64 " + cacheDir + "/tmp.img", "busybox dd if=" + cacheDir + "/tmp.img of=" + MainActivity.ROOTPATH + "/" + imageName + " bs=512 count=2048", "rm " + cacheDir + "/tmp.img", "busybox truncate -s" + (imageSize - 1) + "M " + cacheDir + "/fat.img", "busybox mkfs.vfat -n DRIVE " + cacheDir + "/fat.img", "chmod 777 " + cacheDir + "/fat.img", "chmod 777 " + MainActivity.ROOTPATH + "/" + imageName);
                     getActivity().runOnUiThread(() -> {
                         barProgressDialog.setProgress(100);
                     });
@@ -155,5 +151,9 @@ public class ImageCreationFragment extends Fragment {
 
 
         return view;
+    }
+
+    public interface OnImageCreationListener {
+        void OnImageCreation(String imageItem);
     }
 }
