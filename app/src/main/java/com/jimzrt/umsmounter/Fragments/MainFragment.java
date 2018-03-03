@@ -24,6 +24,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jimzrt.umsmounter.Activities.MainActivity;
 import com.jimzrt.umsmounter.ListAdapters.ImageListAdapter;
 import com.jimzrt.umsmounter.Model.ImageItem;
 import com.jimzrt.umsmounter.R;
@@ -57,9 +58,7 @@ import java.util.List;
  */
 public class MainFragment extends Fragment implements ImageListAdapter.OnImageListListener {
 
-    public static final String ROOTPATH = "/data/media/0/UMSMounter";
-    public static final String USERPATH = "/sdcard/UMSMounter";
-    public static final String ROOTDIR = "/UMSMounter";
+
 
     // Animation animation;
     RecyclerView listView = null;
@@ -438,7 +437,7 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
         imageItem.setDownloading(true);
 
 
-        final Request request = new Request(imageItem.getUrl(), USERPATH + "/" + imageItem.getName());
+        final Request request = new Request(imageItem.getUrl(), MainActivity.USERPATH + "/" + imageItem.getName());
         request.setPriority(Priority.HIGH);
         request.setNetworkType(NetworkType.WIFI_ONLY);
 

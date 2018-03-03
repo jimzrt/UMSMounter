@@ -29,10 +29,17 @@ import com.jimzrt.umsmounter.Tasks.BaseTask;
 import com.jimzrt.umsmounter.Tasks.CheckFolderTask;
 import com.jimzrt.umsmounter.Tasks.CheckMassStorageTask;
 import com.jimzrt.umsmounter.Tasks.CheckRootTask;
+import com.jimzrt.umsmounter.Tasks.SetPathsTask;
 import com.jimzrt.umsmounter.Utils.BackgroundTask;
 import com.jimzrt.umsmounter.Utils.Helper;
 
 public class MainActivity extends AppCompatActivity implements ImageCreationFragment.OnImageCreationListener, DownloadFragment.OnImageDownloadListener {
+
+
+    public static final String ROOTDIR = "/UMSMounter";
+
+    public static String ROOTPATH = "/data/media/0/UMSMounter";
+    public static String USERPATH = "/sdcard/UMSMounter";
 
 
     // private static final int READ_REQUEST_CODE = 42;
@@ -307,13 +314,13 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }
-        })).setTasks(new BaseTask[]{new CheckRootTask(), new CheckFolderTask(), new CheckMassStorageTask()}).execute();
+        })).setTasks(new BaseTask[]{new CheckRootTask(), new CheckFolderTask(), new SetPathsTask(), new CheckMassStorageTask()}).execute();
     }
 
     @Override
     public void OnImageCreation(String imageItemName) {
         showMain();
-        ImageItem imageItem = new ImageItem(imageItemName, MainFragment.ROOTPATH + "/" + imageItemName, MainFragment.USERPATH + "/" + imageItemName, Helper.humanReadableByteCount(0));
+        ImageItem imageItem = new ImageItem(imageItemName, ROOTPATH + "/" + imageItemName, USERPATH + "/" + imageItemName, Helper.humanReadableByteCount(0));
         mainFragment.createImage(imageItem);
 
     }
@@ -344,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 //
                 String name = data.getStringExtra("name");
                 String url = data.getStringExtra("url");
-                ImageItem imageItem = new ImageItem(name, MainFragment.ROOTPATH + "/" + name, MainFragment.USERPATH + "/" + name, Helper.humanReadableByteCount(0));
+                ImageItem imageItem = new ImageItem(name, ROOTPATH + "/" + name, USERPATH + "/" + name, Helper.humanReadableByteCount(0));
                 imageItem.setUrl(url);
                 showMain();
                 mainFragment.addImage(imageItem);

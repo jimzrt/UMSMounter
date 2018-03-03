@@ -3,9 +3,8 @@ package com.jimzrt.umsmounter.ViewModels;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
-import android.os.Environment;
 
-import com.jimzrt.umsmounter.Fragments.MainFragment;
+import com.jimzrt.umsmounter.Activities.MainActivity;
 import com.jimzrt.umsmounter.Model.ImageItem;
 import com.jimzrt.umsmounter.Utils.Helper;
 
@@ -14,14 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ImageItemViewModel extends ViewModel {
-    private MutableLiveData<List<ImageItem>> imageItems;
     private final MutableLiveData<ImageItem> selected = new MutableLiveData<>();
     private final MutableLiveData<ImageItem> removed = new MutableLiveData<>();
     private final MutableLiveData<ImageItem> added = new MutableLiveData<>();
     private final MutableLiveData<ImageItem> mounted = new MutableLiveData<>();
     private final MutableLiveData<ImageItem> unmounted = new MutableLiveData<>();
     private final MutableLiveData<ImageItem> downloading = new MutableLiveData<>();
-
+    private MutableLiveData<List<ImageItem>> imageItems;
 
     public void select(ImageItem item) {
         selected.setValue(item);
@@ -65,14 +63,14 @@ public class ImageItemViewModel extends ViewModel {
     private void loadImages() {
 
         List<ImageItem> items = new ArrayList<>();
-        String path = Environment.getExternalStorageDirectory().toString() + MainFragment.ROOTDIR;
+        String path = MainActivity.USERPATH;
         File f = new File(path);
 
 
         File files[] = f.listFiles();
         if (files != null) {
             for (File file : files) {
-                ImageItem item = new ImageItem(file.getName(), MainFragment.ROOTPATH + "/" + file.getName(), MainFragment.USERPATH + "/" + file.getName(), Helper.humanReadableByteCount(file.length()));
+                ImageItem item = new ImageItem(file.getName(), MainActivity.ROOTPATH + "/" + file.getName(), MainActivity.USERPATH + "/" + file.getName(), Helper.humanReadableByteCount(file.length()));
                 items.add(item);
             }
         }
