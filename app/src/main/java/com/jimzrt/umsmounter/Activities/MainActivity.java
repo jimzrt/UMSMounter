@@ -15,11 +15,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.jimzrt.umsmounter.BuildConfig;
+import com.jimzrt.umsmounter.Fragments.CreditsFragment;
 import com.jimzrt.umsmounter.Fragments.DownloadFragment;
 import com.jimzrt.umsmounter.Fragments.ImageCreationFragment;
 import com.jimzrt.umsmounter.Fragments.MainFragment;
@@ -45,16 +46,13 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
     public static String USERPATH;
 
 
-    // private static final int READ_REQUEST_CODE = 42;
-    // TextView logView = null;
-    // Spinner usbMode = null;
-
     public static String android_id = UUID.randomUUID().toString().substring(31);
 
 
     MainFragment mainFragment;
     ImageCreationFragment createImageFragment;
     DownloadFragment downloadFragment;
+    CreditsFragment creditsFragment;
 
     Fragment currentFragment;
 
@@ -62,7 +60,6 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
     private DrawerLayout mDrawerLayout;
     private NavigationView navigationView;
 
-    //private ActionBarDrawerToggle mDrawerToggle;
 
 
     @Override
@@ -75,16 +72,13 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
     protected void onCreate(Bundle savedInstanceState) {
 
 
-        //  Helper.verifyStoragePermissions(this);
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //getSupportActionBar().setLogo(R.drawable.ic_logo);
-        //  getSupportActionBar().setDisplayUseLogoEnabled(true);
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -93,13 +87,10 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
         }
 
 
-        // Check that the activity is using the layout version with
-        // the fragment_container FrameLayout
+
         if (findViewById(R.id.fragment_container) != null) {
 
-            // However, if we're being restored from a previous state,
-            // then we don't need to do anything and should return or else
-            // we could end up with overlapping fragments.
+
             if (savedInstanceState != null) {
                 return;
             }
@@ -108,14 +99,17 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
             mainFragment = new MainFragment();
             createImageFragment = new ImageCreationFragment();
             downloadFragment = new DownloadFragment();
+            creditsFragment = new CreditsFragment();
 
-            // In case this activity was started with special instructions from an
-            // Intent, pass the Intent's extras to the fragment as arguments
-            // firstFragment.setArguments(getIntent().getExtras());
+
 
             SharedPreferences sharedPref = getSharedPreferences(null, Context.MODE_PRIVATE);
             boolean firstRun = sharedPref.getBoolean("firstRun", true);
-            if (firstRun) {
+            String version = sharedPref.getString("version", "");
+            USERPATH = sharedPref.getString("userpath", "");
+            ROOTPATH = sharedPref.getString("rootpath", "");
+
+            if (firstRun || !BuildConfig.VERSION_NAME.equals(version)) {
                 checkAll();
             } else {
                 // Add the fragment to the 'fragment_container' FrameLayout
@@ -135,33 +129,29 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
                 menuItem -> {
                     // set item as selected to persist highlight
                     menuItem.setChecked(true);
-                    // Log.i("lala", ""+currentFragmentId);
-                    // close drawer when item is tapped
+
                     mDrawerLayout.closeDrawers();
 
                     switch (menuItem.getItemId()) {
                         case R.id.nav_home:
                             if (currentFragment != mainFragment) {
                                 showMain();
-
-                            } else {
-                                Toast.makeText(this, "Already on this mothafucka", Toast.LENGTH_LONG).show();
                             }
                             break;
                         case R.id.nav_create_image:
                             if (currentFragment != createImageFragment) {
                                 showCreateImage();
-                            } else {
-                                Toast.makeText(this, "Already on this mothafucka", Toast.LENGTH_LONG).show();
                             }
                             break;
                         case R.id.nav_download_image:
                             if (currentFragment != downloadFragment) {
                                 showDownloadImage();
-                            } else {
-                                Toast.makeText(this, "Already on this mothafucka", Toast.LENGTH_LONG).show();
                             }
                             break;
+                        case R.id.nav_credits:
+                            if (currentFragment != createImageFragment) {
+                                showCredits();
+                            }
 
                     }
                     // Add code here to update the UI based on the item selected
@@ -183,9 +173,9 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
                     } else if (downloadFragment.isAdded()) {
                         navigationView.setCheckedItem(R.id.nav_download_image);
                         currentFragment = downloadFragment;
-                    } else {
-                        navigationView.setCheckedItem(-1);
-                        currentFragment = downloadFragment;
+                    } else if (creditsFragment.isAdded()) {
+                        navigationView.setCheckedItem(R.id.nav_credits);
+                        currentFragment = creditsFragment;
                     }
 
                 });
@@ -214,6 +204,28 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
         transaction.commit();
         currentFragment = downloadFragment;
         navigationView.setCheckedItem(R.id.nav_download_image);
+    }
+
+    private void showCredits() {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(
+                R.anim.card_flip_right_in,
+                R.anim.card_flip_right_out,
+                R.anim.card_flip_left_in,
+                R.anim.card_flip_left_out);
+
+        if (currentFragment == mainFragment) {
+            transaction.hide(mainFragment);
+        } else {
+            transaction.remove(currentFragment);
+        }
+        transaction.add(R.id.fragment_container, creditsFragment);
+
+
+        transaction.addToBackStack(null);
+        transaction.commit();
+        currentFragment = creditsFragment;
+        navigationView.setCheckedItem(R.id.nav_credits);
     }
 
     @Override
@@ -300,6 +312,7 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putBoolean("firstRun", false);
+                editor.putString("version", BuildConfig.VERSION_NAME);
                 editor.apply();
 
                 if (!mainFragment.isAdded()) {
