@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/MyApplication.iml" filepath="$PROJECT_DIR$/MyApplication.iml" />
       <module fileurl="file://C:\Users\james\StudioProjects\UMSMounter\MyApplication.iml" filepath="C:\Users\james\StudioProjects\UMSMounter\MyApplication.iml" />
       <module fileurl="file://$PROJECT_DIR$/UMSMounter.iml" filepath="$PROJECT_DIR$/UMSMounter.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
