@@ -25,14 +25,14 @@
                 android:id="@+id/textView3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="UMS Mounter"
+                android:text="@string/title"
                 android:textSize="24sp" />
 
             <TextView
                 android:id="@+id/versionView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Version:" />
+                android:text="@string/version" />
 
             <Space
                 android:layout_width="match_parent"
@@ -51,7 +51,7 @@
                 android:id="@+id/textView8"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Libraries used:"
+                android:text="@string/libraries_used"
                 android:textStyle="bold" />
 
             <TextView
@@ -60,7 +60,7 @@
                 android:layout_height="wrap_content"
                 android:autoLink="web"
                 android:lineSpacingExtra="10sp"
-                android:text="TextView" />
+                android:text="" />
 
             <Space
                 android:layout_width="match_parent"
@@ -80,7 +80,7 @@
                 android:id="@+id/textView10"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Acknowledgement:"
+                android:text="@string/acknowledgement"
                 android:textStyle="bold" />
 
             <TextView
@@ -89,7 +89,7 @@
                 android:layout_height="wrap_content"
                 android:autoLink="web"
                 android:lineSpacingExtra="10sp"
-                android:text="TextView" />
+                android:text="" />
 
             <Space
                 android:layout_width="match_parent"
@@ -109,7 +109,7 @@
                 android:id="@+id/textView12"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Source code:"
+                android:text="@string/source_code"
                 android:textStyle="bold" />
 
             <TextView
@@ -117,7 +117,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autoLink="web"
-                android:text="TextView" />
+                android:text="" />
 
         </LinearLayout>
     </ScrollView>

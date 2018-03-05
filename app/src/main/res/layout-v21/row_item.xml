@@ -59,6 +59,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
+        android:backgroundTint="#b60009"
         android:text="@string/delete"
         android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/progressBar"

@@ -1,5 +1,6 @@
 package com.jimzrt.umsmounter.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
@@ -43,7 +45,6 @@ public class DownloadFragment extends Fragment {
     OnImageDownloadListener mCallback;
     RecyclerView recyclerView;
     ImageDownloadListAdapter listViewAdapter;
-    private TextView updatedTextView;
 
     @Override
     public void onAttach(Context context) {
@@ -70,7 +71,6 @@ public class DownloadFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_download, container, false);
         recyclerView = view.findViewById(R.id.downloadImageList);
-        updatedTextView = view.findViewById(R.id.updatedTextView);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
 
@@ -82,12 +82,12 @@ public class DownloadFragment extends Fragment {
                 mLayoutManager.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
 
-        new DownloadFilesTask().execute(false);
+        new DownloadFilesTask(getActivity(), listViewAdapter).execute(false);
 
         ImageButton refreshButton = view.findViewById(R.id.buttonRefreshDownload);
         refreshButton.setOnClickListener(v -> {
             listViewAdapter.clear();
-            new DownloadFilesTask().execute(true);
+            new DownloadFilesTask(getActivity(), listViewAdapter).execute(true);
         });
 
 
@@ -98,7 +98,15 @@ public class DownloadFragment extends Fragment {
         void OnImageListClick(DownloadItem downloadItem);
     }
 
-    private class DownloadFilesTask extends AsyncTask<Boolean, Void, List<DownloadItem>> {
+    private static class DownloadFilesTask extends AsyncTask<Boolean, Void, List<DownloadItem>> {
+
+        WeakReference<Activity> mWeakActivity;
+        ImageDownloadListAdapter listAdapter;
+
+        DownloadFilesTask(Activity activity, ImageDownloadListAdapter listAdapter) {
+            mWeakActivity = new WeakReference<>(activity);
+            this.listAdapter = listAdapter;
+        }
 
 
         protected List<DownloadItem> doInBackground(Boolean... forceReload) {
@@ -109,10 +117,10 @@ public class DownloadFragment extends Fragment {
 
             Type imageListType = new TypeToken<ArrayList<DownloadItem>>() {
             }.getType();
-            File file = new File(getContext().getFilesDir(), "data.json");
+            File file = new File(mWeakActivity.get().getFilesDir(), "data.json");
             List<DownloadItem> list = null;
             if (file.exists() && !force) {
-                try (Reader reader = new FileReader(getContext().getFilesDir() + "/data.json")) {
+                try (Reader reader = new FileReader(mWeakActivity.get().getFilesDir() + "/data.json")) {
                     Gson gson = new GsonBuilder().create();
 
                     list = gson.fromJson(reader, imageListType);
@@ -142,7 +150,7 @@ public class DownloadFragment extends Fragment {
 
                     Collections.sort(list);
 
-                    try (Writer writer = new FileWriter(getContext().getFilesDir() + "/data.json")) {
+                    try (Writer writer = new FileWriter(mWeakActivity.get().getFilesDir() + "/data.json")) {
                         gson = new GsonBuilder().create();
                         gson.toJson(list, writer);
                     }
@@ -161,11 +169,12 @@ public class DownloadFragment extends Fragment {
         protected void onPostExecute(List<DownloadItem> list) {
 
 
-            File file = new File(getContext().getFilesDir() + "/data.json");
+            File file = new File(mWeakActivity.get().getFilesDir() + "/data.json");
+            TextView updatedTextView = mWeakActivity.get().findViewById(R.id.updatedTextView);
             updatedTextView.setText("Last updated: " + Helper.convertDate("" + file.lastModified()));
 
-            listViewAdapter.setItems(list);
-            listViewAdapter.notifyDataSetChanged();
+            listAdapter.setItems(list);
+            listAdapter.notifyDataSetChanged();
         }
     }
 }
