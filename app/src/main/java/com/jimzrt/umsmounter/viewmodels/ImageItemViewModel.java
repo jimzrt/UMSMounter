@@ -17,7 +17,6 @@ public class ImageItemViewModel extends ViewModel {
     private final MutableLiveData<ImageItem> removed = new MutableLiveData<>();
     private final MutableLiveData<ImageItem> added = new MutableLiveData<>();
     private final MutableLiveData<ImageItem> mounted = new MutableLiveData<>();
-    private final MutableLiveData<ImageItem> unmounted = new MutableLiveData<>();
     private final MutableLiveData<ImageItem> downloading = new MutableLiveData<>();
     private MutableLiveData<List<ImageItem>> imageItems;
 
@@ -33,16 +32,6 @@ public class ImageItemViewModel extends ViewModel {
         return downloading;
     }
 
-    public void addImage(ImageItem item) {
-        List<ImageItem> items = imageItems.getValue();
-        if (items.contains(item)) {
-            remove(item);
-        }
-
-        items.add(item);
-        imageItems.postValue(items);
-        //imageItems.getValue().add(item);
-    }
 
     public LiveData<ImageItem> getSelected() {
         return selected;
@@ -54,7 +43,7 @@ public class ImageItemViewModel extends ViewModel {
 
     public LiveData<List<ImageItem>> getImages(boolean force) {
         if (imageItems == null || force) {
-            imageItems = new MutableLiveData<List<ImageItem>>();
+            imageItems = new MutableLiveData<>();
             loadImages();
         }
         return imageItems;

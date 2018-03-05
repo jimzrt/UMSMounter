@@ -9,10 +9,10 @@ import com.jimzrt.umsmounter.tasks.BaseTask;
 import java.lang.ref.WeakReference;
 
 public class BackgroundTask extends AsyncTask<Void, Void, Void> {
-    WeakReference<Activity> mWeakActivity;
-    AsyncResponse delegate = null;
-    String errorMessage;
-    boolean successful = true;
+    private final WeakReference<Activity> mWeakActivity;
+    private AsyncResponse delegate = null;
+    private String errorMessage;
+    private boolean successful = true;
     private ProgressDialog dialog = null;
     private BaseTask[] tasks = null;
     public BackgroundTask(Activity activity) {
@@ -64,10 +64,7 @@ public class BackgroundTask extends AsyncTask<Void, Void, Void> {
                     success = "✗";
                     description.append(success);
                     String finalDescription2 = description.toString();
-                    mWeakActivity.get().runOnUiThread(() -> {
-                        dialog.setMessage(finalDescription2);
-
-                    });
+                    mWeakActivity.get().runOnUiThread(() -> dialog.setMessage(finalDescription2));
                     successful = false;
                     errorMessage = task.getResult();
                     break;
@@ -75,10 +72,7 @@ public class BackgroundTask extends AsyncTask<Void, Void, Void> {
 
                 description.append(success);
                 String finalDescription2 = description.toString();
-                mWeakActivity.get().runOnUiThread(() -> {
-                    dialog.setMessage(finalDescription2);
-
-                });
+                mWeakActivity.get().runOnUiThread(() -> dialog.setMessage(finalDescription2));
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
@@ -103,7 +97,6 @@ public class BackgroundTask extends AsyncTask<Void, Void, Void> {
 
         if (delegate != null) {
             StringBuilder results = new StringBuilder();
-            StringBuilder errorString = new StringBuilder();
 
             for (BaseTask task : tasks) {
                 results.append(task.getResult());

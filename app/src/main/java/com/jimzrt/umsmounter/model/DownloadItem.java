@@ -2,9 +2,6 @@ package com.jimzrt.umsmounter.model;
 
 import android.support.annotation.NonNull;
 
-/**
- * Created by james on 27.02.18.
- */
 
 public class DownloadItem implements Comparable<DownloadItem> {
     public String id;

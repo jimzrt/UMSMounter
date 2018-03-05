@@ -1,5 +1,6 @@
 package com.jimzrt.umsmounter.listadapters;
 
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,13 +14,9 @@ import com.jimzrt.umsmounter.model.DownloadItem;
 
 import java.util.List;
 
-/**
- * Created by james on 27.02.18.
- */
-
 public class ImageDownloadListAdapter extends RecyclerView.Adapter<ImageDownloadListAdapter.ViewHolder> implements View.OnClickListener {
-    RecyclerView mRecyclerView;
-    private DownloadFragment.OnImageDownloadListener mCallback;
+    private final DownloadFragment.OnImageDownloadListener mCallback;
+    private RecyclerView mRecyclerView;
     private List<DownloadItem> mDataset;
 
     // Provide a suitable constructor (depends on the kind of dataset)
@@ -29,7 +26,7 @@ public class ImageDownloadListAdapter extends RecyclerView.Adapter<ImageDownload
     }
 
     @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
 
         mRecyclerView = recyclerView;
@@ -55,20 +52,19 @@ public class ImageDownloadListAdapter extends RecyclerView.Adapter<ImageDownload
 
     // Create new views (invoked by the layout manager)
     @Override
-    public ImageDownloadListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+    public ImageDownloadListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                                                                   int viewType) {
         // create a new view
         ConstraintLayout v = (ConstraintLayout) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.row_download, parent, false);
 
 
-        ViewHolder vh = new ViewHolder(v, this);
-        return vh;
+        return new ViewHolder(v, this);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         holder.downloadNameView.setText(mDataset.get(position).name);
@@ -90,10 +86,10 @@ public class ImageDownloadListAdapter extends RecyclerView.Adapter<ImageDownload
     // you provide access to all the views for a data item in a view holder
     static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        ConstraintLayout root;
-        TextView downloadNameView;
-        TextView downloadUrlView;
-        TextView downloadReleasesView;
+        final ConstraintLayout root;
+        final TextView downloadNameView;
+        final TextView downloadUrlView;
+        final TextView downloadReleasesView;
 
         ViewHolder(ConstraintLayout v, View.OnClickListener listener) {
             super(v);

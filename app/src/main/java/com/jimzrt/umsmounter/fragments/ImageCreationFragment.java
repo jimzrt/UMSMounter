@@ -22,7 +22,7 @@ import com.topjohnwu.superuser.Shell;
 
 public class ImageCreationFragment extends Fragment {
 
-    OnImageCreationListener mCallback;
+    private OnImageCreationListener mCallback;
 
     @Override
     public void onAttach(Context context) {
@@ -127,9 +127,7 @@ public class ImageCreationFragment extends Fragment {
                     String cacheDir = getContext().getCacheDir().getAbsolutePath();
 
                     Shell.Sync.sh("busybox truncate -s" + imageSize + "M " + cacheDir + "/tmp.img", "echo \"o\\nn\\np\\n1\\n2\\n\\nt\\nc\\na\\n1\\nw\\n\" | busybox fdisk -S 32 -H 64 " + cacheDir + "/tmp.img", "busybox dd if=" + cacheDir + "/tmp.img of=" + MainActivity.ROOTPATH + "/" + imageName + " bs=512 count=2048", "rm " + cacheDir + "/tmp.img", "busybox truncate -s" + (imageSize - 1) + "M " + cacheDir + "/fat.img", "busybox mkfs.vfat -n DRIVE " + cacheDir + "/fat.img", "chmod 777 " + cacheDir + "/fat.img", "chmod 777 " + MainActivity.ROOTPATH + "/" + imageName);
-                    getActivity().runOnUiThread(() -> {
-                        barProgressDialog.setProgress(100);
-                    });
+                    getActivity().runOnUiThread(() -> barProgressDialog.setProgress(100));
 
 
                     barProgressDialog.dismiss();

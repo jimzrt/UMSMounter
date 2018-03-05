@@ -61,10 +61,10 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
 
 
     // Animation animation;
-    RecyclerView listView = null;
-    ImageListAdapter listViewAdapter = null;
-    Spinner usbMode = null;
-    ArrayAdapter<String> usbModeAdapter = null;
+    private RecyclerView listView = null;
+    private ImageListAdapter listViewAdapter = null;
+    private Spinner usbMode = null;
+    private ArrayAdapter<String> usbModeAdapter = null;
     private boolean populate;
     private String functionMode = "mtp,adb";
     private Fetch mainFetch;
@@ -91,12 +91,6 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
 
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-
-    }
 
     @Override
     public void onDestroy() {
@@ -194,9 +188,7 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
         statusText.setTextColor(Color.LTGRAY);
 
 
-        model.getSelected().observe(this, image -> {
-            listViewAdapter.setSelectedItem(image);
-        });
+        model.getSelected().observe(this, image -> listViewAdapter.setSelectedItem(image));
         model.getDownloading().observe(this, image -> {
             Log.i("lala", "position: " + listViewAdapter.getPositionOfItem(image));
             listViewAdapter.notifyItemChanged(listViewAdapter.getPositionOfItem(image), "download");
@@ -248,7 +240,7 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
         }).setTasks(new BaseTask[]{new UnmountingTask(functionMode)}).execute();
     }
 
-    public void mount(ImageItem imageItem) {
+    private void mount(ImageItem imageItem) {
 
 
         List<String> output = Shell.Sync.sh("getprop sys.usb.config");
@@ -355,7 +347,7 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
                     byte[] buffer = new byte[1024 * 512];
                     long pos = (int) Math.ceil(fos.getChannel().size() / buffer.length);
 
-                    int noOfBytes = 0;
+                    int noOfBytes;
 
 
                     // read bytes from source file and write to destination file
@@ -445,14 +437,11 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
 
 
         final FetchListener fetchListener = new FetchListener() {
-            int oldProgress = 0;
+
 
             @Override
-            public void onQueued(@NotNull Download download) {
-                if (request.getId() == download.getId()) {
-
-
-                }
+            public void onQueued(Download download) {
+                Log.i("fetch", "added download with id " + download.getId());
             }
 
             @Override
@@ -463,9 +452,7 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
                 listView.smoothScrollToPosition(listViewAdapter.getPositionOfItem(imageItem));
                 model.select(imageItem);
 
-                getActivity().runOnUiThread(() -> {
-                    Toast.makeText(getContext(), "Downloaded!", Toast.LENGTH_SHORT).show();
-                });
+                getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Downloaded!", Toast.LENGTH_SHORT).show());
                 mainFetch.removeListener(this);
                 mainFetch.remove(download.getId());
             }
@@ -488,8 +475,6 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
             public void onProgress(@NotNull Download download, long etaInMilliSeconds, long downloadedBytesPerSecond) {
                 if (request.getId() == download.getId()) {
 
-
-                    oldProgress = download.getProgress();
 
                     imageItem.setProgress(download.getProgress());
                     imageItem.setSize(Helper.humanReadableByteCount(download.getDownloaded()) + " / " + Helper.humanReadableByteCount(download.getTotal()) + " - " + Helper.humanReadableByteCount(downloadedBytesPerSecond) + "/s");

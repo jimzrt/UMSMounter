@@ -8,14 +8,11 @@ import java.lang.ref.WeakReference;
 public abstract class BaseTask {
 
     //  Context ctx;
-    protected String name;
-    protected String description;
+    String name;
+    String description;
     String result;
     WeakReference<Activity> ctx;
 
-
-    public BaseTask() {
-    }
 
     public String getName() {
         return name;

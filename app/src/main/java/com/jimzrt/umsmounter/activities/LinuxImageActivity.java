@@ -15,10 +15,6 @@ import com.jimzrt.umsmounter.R;
 import com.jimzrt.umsmounter.model.DownloadItem;
 import com.jimzrt.umsmounter.model.Release;
 
-/**
- * Created by james on 27.02.18.
- */
-
 public class LinuxImageActivity extends AppCompatActivity {
 
 

@@ -1,6 +1,8 @@
 package com.jimzrt.umsmounter.model;
 
 
+import android.support.annotation.NonNull;
+
 public class ImageItem implements Comparable<ImageItem> {
     private String name;
     private String rootPath;
@@ -98,7 +100,7 @@ public class ImageItem implements Comparable<ImageItem> {
     }
 
     @Override
-    public int compareTo(ImageItem o) {
+    public int compareTo(@NonNull ImageItem o) {
         return this.name.compareTo(o.name);
     }
 

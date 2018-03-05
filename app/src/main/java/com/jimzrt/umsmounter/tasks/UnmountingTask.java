@@ -9,7 +9,7 @@ import com.topjohnwu.superuser.Shell;
 
 public class UnmountingTask extends BaseTask {
 
-    private String oldFunctions;
+    private final String oldFunctions;
 
     public UnmountingTask(String oldFunctions) {
         this.name = "Reverting";
@@ -37,7 +37,6 @@ public class UnmountingTask extends BaseTask {
                         "setprop sys.usb.config " + oldFunctions);
                 return true;
             case "android_usb":
-                String usb = "/sys/class/android_usb/android0";
                 Shell.Sync.sh("setprop sys.usb.config none",
                         "echo \"\" > " + usbPath + "/file",
                         "setprop sys.usb.config " + oldFunctions);

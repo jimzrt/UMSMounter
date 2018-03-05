@@ -42,9 +42,8 @@ import java.util.List;
 
 public class DownloadFragment extends Fragment {
 
-    OnImageDownloadListener mCallback;
-    RecyclerView recyclerView;
-    ImageDownloadListAdapter listViewAdapter;
+    private OnImageDownloadListener mCallback;
+    private ImageDownloadListAdapter listViewAdapter;
 
     @Override
     public void onAttach(Context context) {
@@ -70,7 +69,7 @@ public class DownloadFragment extends Fragment {
 
 
         View view = inflater.inflate(R.layout.fragment_download, container, false);
-        recyclerView = view.findViewById(R.id.downloadImageList);
+        RecyclerView recyclerView = view.findViewById(R.id.downloadImageList);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
 
@@ -100,8 +99,8 @@ public class DownloadFragment extends Fragment {
 
     private static class DownloadFilesTask extends AsyncTask<Boolean, Void, List<DownloadItem>> {
 
-        WeakReference<Activity> mWeakActivity;
-        ImageDownloadListAdapter listAdapter;
+        final WeakReference<Activity> mWeakActivity;
+        final ImageDownloadListAdapter listAdapter;
 
         DownloadFilesTask(Activity activity, ImageDownloadListAdapter listAdapter) {
             mWeakActivity = new WeakReference<>(activity);
@@ -131,10 +130,8 @@ public class DownloadFragment extends Fragment {
                 }
             } else {
 
-                //  try (Reader reader = new InputStreamReader(new URL("http://pelzekaufen.de/main.json").openStream())) {
-                try (Reader reader = new InputStreamReader(new URL("http://softwarebakery.com/apps/drivedroid/repositories/distrowatch.json").openStream())) {
+                try (Reader reader = new InputStreamReader(new URL("http://softwarebakery.com/apps/drivedroid/repositories/main.json").openStream())) {
 
-                    // Reader reader = new InputStreamReader(new URL("http://pelzekaufen.de/main.json").openStream());
 
                     Gson gson = new GsonBuilder().create();
 

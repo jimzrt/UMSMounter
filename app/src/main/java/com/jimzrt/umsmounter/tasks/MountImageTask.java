@@ -9,8 +9,8 @@ import com.topjohnwu.superuser.Shell;
 
 public class MountImageTask extends BaseTask {
 
-    private ImageItem imageItem;
-    private String mode;
+    private final ImageItem imageItem;
+    private final String mode;
 
     public MountImageTask(ImageItem imageItem, String mode) {
         this.name = "Mounting";
@@ -22,9 +22,9 @@ public class MountImageTask extends BaseTask {
 
     @Override
     public boolean execute() {
-        String removable = "";
-        String ro = "";
-        String cdrom = "";
+        String removable;
+        String ro;
+        String cdrom;
 
         switch (mode){
             case "Writable USB":

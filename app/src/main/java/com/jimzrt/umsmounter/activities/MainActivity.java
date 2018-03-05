@@ -43,14 +43,14 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
     public static String USERPATH;
 
 
-    MainFragment mainFragment;
-    ImageCreationFragment createImageFragment;
-    DownloadFragment downloadFragment;
-    CreditsFragment creditsFragment;
+    private MainFragment mainFragment;
+    private ImageCreationFragment createImageFragment;
+    private DownloadFragment downloadFragment;
+    private CreditsFragment creditsFragment;
 
-    Fragment currentFragment;
+    private Fragment currentFragment;
 
-    Toolbar toolbar;
+    private Toolbar toolbar;
     private DrawerLayout mDrawerLayout;
     private NavigationView navigationView;
 
@@ -296,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
     }
 
 
-    void checkAll() {
+    private void checkAll() {
 
 
         SharedPreferences sharedPref = getSharedPreferences(null, Context.MODE_PRIVATE);

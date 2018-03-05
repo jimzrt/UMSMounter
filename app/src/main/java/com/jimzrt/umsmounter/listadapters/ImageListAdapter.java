@@ -24,11 +24,10 @@ import java.util.List;
 
 public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.ViewHolder> implements View.OnClickListener {
 
+    private final Context mContext;
+    private final OnImageListListener mCallback;
+    private final SortedList<ImageItem> dataSet;
     private RecyclerView mRecyclerView;
-    private Context mContext;
-    private OnImageListListener mCallback;
-
-    private SortedList<ImageItem> dataSet;
     private int lastSelected = -1;
 
     public ImageListAdapter(List<ImageItem> data, Context context, OnImageListListener listener) {
@@ -416,7 +415,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        private ConstraintLayout rootView;
+        private final ConstraintLayout rootView;
         private ImageView imageView;
         private TextView name;
         private TextView size;

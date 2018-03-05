@@ -17,9 +17,10 @@ public class CheckFolderTask extends BaseTask {
 
         String path = Environment.getExternalStorageDirectory().toString()+"/UMSMounter";
         File f = new File(path);
+        boolean success = true;
 
         if(!f.exists()){
-                    f.mkdir();
+            success = f.mkdir();
                     this.result = "Path " + path + " not found, creating.\n";
                 }
 
@@ -29,7 +30,7 @@ public class CheckFolderTask extends BaseTask {
                     this.result = "Found path " + path + " with " + files.length + " files.\n";
                 }
 
-        return true;
+        return success;
 
 
     }
