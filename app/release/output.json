@@ -12,7 +12,7 @@
     "properties": {
       "packageId": "com.jimzrt.umsmounter",
       "split": "",
-      "minSdkVersion": "21"
+      "minSdkVersion": "19"
     }
   }
 ]
