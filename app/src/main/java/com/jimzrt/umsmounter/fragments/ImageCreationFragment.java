@@ -99,8 +99,8 @@ public class ImageCreationFragment extends Fragment {
                 inputManager.hideSoftInputFromWindow((null == getActivity().getCurrentFocus()) ? null : getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
             }
 
-            String imageName = ((TextView) view.findViewById(R.id.imageName)).getText().toString() + ".img";
-            int imageSize = Integer.parseInt(((TextView) view.findViewById(R.id.imageSize)).getText().toString());
+            String imageName = nameTextView.getText().toString() + ".img";
+            int imageSize = Integer.parseInt(sizeTextView.getText().toString());
 
 
 

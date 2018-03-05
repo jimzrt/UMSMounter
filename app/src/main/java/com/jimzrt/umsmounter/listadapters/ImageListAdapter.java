@@ -1,9 +1,9 @@
 package com.jimzrt.umsmounter.listadapters;
 
-import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
@@ -24,17 +24,14 @@ import java.util.List;
 
 public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.ViewHolder> implements View.OnClickListener {
 
-    RecyclerView mRecyclerView;
-    Context mContext;
-    OnImageListListener mCallback;
+    private RecyclerView mRecyclerView;
+    private Context mContext;
+    private OnImageListListener mCallback;
 
-    //private HashSet<Integer> animationMap = new HashSet<>();
     private SortedList<ImageItem> dataSet;
     private int lastSelected = -1;
-    private int lastMounted = -1;
 
     public ImageListAdapter(List<ImageItem> data, Context context, OnImageListListener listener) {
-        // super(context, R.layout.row_item, data);
         this.dataSet = new SortedList<>(ImageItem.class, new SortedList.Callback<ImageItem>() {
             @Override
             public int compare(ImageItem o1, ImageItem o2) {
@@ -91,14 +88,15 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
     }
 
     @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
 
         mRecyclerView = recyclerView;
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         // create a new view
         ConstraintLayout rootView = (ConstraintLayout) LayoutInflater.from(parent.getContext())
@@ -110,23 +108,19 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
         holder.name = rootView.findViewById(R.id.name);
         holder.size = rootView.findViewById(R.id.type);
         holder.mountButton = rootView.findViewById(R.id.mountButton);
-        holder.mountButton.setOnClickListener(v -> {
-            mCallback.onMountImageButtonClicked();
-        });
+        holder.mountButton.setOnClickListener(v -> mCallback.onMountImageButtonClicked());
         holder.deleteButton = rootView.findViewById(R.id.deleteButton);
-        holder.deleteButton.setOnClickListener(v -> {
-            mCallback.onDeleteImageButtonClicked();
-        });
+        holder.deleteButton.setOnClickListener(v -> mCallback.onDeleteImageButtonClicked());
         holder.progressBar = rootView.findViewById(R.id.progressBar);
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position, List<Object> payloads) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull List<Object> payloads) {
         if (payloads.isEmpty()) {
             // Perform a full update
 
-            onBindViewHolder(holder, position);
+            onBindViewHolder(holder, holder.getAdapterPosition());
         } else {
             // Perform a partial update
             for (Object payload : payloads) {
@@ -165,44 +159,19 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
                     anim.start();
 
 
-                    //holder.mountButton.setAlpha(0);
-                    ValueAnimator anim2 = ValueAnimator.ofFloat(0f, 1f);
-                    anim2.addUpdateListener(valueAnimator -> {
-                        float val = (Float) valueAnimator.getAnimatedValue();
-                        // holder.mountButton.setAlpha(val);
-                        //  holder.deleteButton.setAlpha(val);
-                    });
-                    anim2.addListener(new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
+                    convertView.postDelayed(() -> {
+                        if (dataSet.get(holder.getAdapterPosition()).isDownloading()) {
+                            holder.mountButton.setVisibility(View.INVISIBLE);
+                        } else {
+                            holder.mountButton.setVisibility(View.VISIBLE);
 
                         }
+                        holder.deleteButton.setVisibility(View.VISIBLE);
 
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            if (dataSet.get(position).isDownloading()) {
-                                holder.mountButton.setVisibility(View.INVISIBLE);
-                            } else {
-                                holder.mountButton.setVisibility(View.VISIBLE);
+                        mRecyclerView.smoothScrollToPosition(holder.getAdapterPosition());
 
-                            }
-                            holder.deleteButton.setVisibility(View.VISIBLE);
+                    }, 200);
 
-                            mRecyclerView.smoothScrollToPosition(position);
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animation) {
-
-                        }
-                    });
-                    anim2.setDuration(200);
-                    anim2.start();
 
 
                     // holder.deleteButton.setVisibility(View.VISIBLE);
@@ -238,37 +207,11 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
                     anim.setDuration(300);
                     anim.start();
 
-                    ValueAnimator anim2 = ValueAnimator.ofInt(1, 0);
-                    anim2.addUpdateListener(valueAnimator -> {
-                        int val = (Integer) valueAnimator.getAnimatedValue();
-                        //  holder.mountButton.setAlpha(val);
-                        // holder.deleteButton.setAlpha(val);
+                    convertView.postDelayed(() -> {
+                        holder.mountButton.setVisibility(View.INVISIBLE);
+                        holder.deleteButton.setVisibility(View.INVISIBLE);
+                    }, 200);
 
-                    });
-                    anim2.addListener(new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            holder.mountButton.setVisibility(View.INVISIBLE);
-                            holder.deleteButton.setVisibility(View.INVISIBLE);
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animation) {
-
-                        }
-                    });
-                    anim2.setDuration(200);
-                    anim2.start();
 
                 } else if (payload.equals("mount")) {
 
@@ -281,7 +224,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
                     holder.imageView.setColorFilter(null);
                     holder.mountButton.setChecked(false);
                 } else if (payload.equals("download")) {
-                    ImageItem imageItem = dataSet.get(position);
+                    ImageItem imageItem = dataSet.get(holder.getAdapterPosition());
                     if (imageItem.isDownloading()) {
                         holder.progressBar.setVisibility(View.VISIBLE);
                         holder.progressBar.setProgress(imageItem.getProgress());
@@ -297,7 +240,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
         ImageItem imageItem = dataSet.get(position);
 
@@ -367,9 +310,6 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
         return dataSet.size();
     }
 
-    public ImageItem getItemAtPosition(int checkedItemPosition) {
-        return dataSet.get(checkedItemPosition);
-    }
 
     public void remove(ImageItem checkedItem) {
         //animationMap.remove(dataSet.indexOf(checkedItem));
@@ -415,18 +355,11 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
 
     public int addItem(ImageItem imageItem) {
 
+        return dataSet.add(imageItem);
 
-        //   setSelectedItemPosition(-1);
-        int position = dataSet.add(imageItem);
-
-        return position;
-        //   } else {
-        //        return dataSet.indexOf(imageItem);
-        //    }
-        //   return 0;
     }
 
-    public boolean contains(ImageItem item) {
+    private boolean contains(ImageItem item) {
         return dataSet.indexOf(item) != -1;
     }
 
@@ -442,12 +375,8 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
             setSelectedItemPosition(position);
         }
 
-        //this.selectedItem = selectedItem;
     }
 
-    public int getSelectedItemPosition() {
-        return lastSelected;
-    }
 
     private void setSelectedItemPosition(int position) {
         //notifyDataSetChanged();
@@ -476,22 +405,6 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
         lastSelected = position;
     }
 
-    public int getMountedItemPosition() {
-        return lastMounted;
-    }
-
-    public void setMountedItemPosition(int mountedItemPosition) {
-        if (lastMounted != -1) {
-            dataSet.get(lastMounted).setMounted(false);
-            notifyItemChanged(lastMounted, "unmount");
-        }
-        lastMounted = mountedItemPosition;
-        if (lastMounted != -1) {
-            dataSet.get(lastMounted).setMounted(true);
-            notifyItemChanged(lastMounted, "mount");
-        }
-
-    }
 
     public interface OnImageListListener {
 
@@ -510,9 +423,8 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
         private ToggleButton mountButton;
         private Button deleteButton;
         private ProgressBar progressBar;
-        private boolean animated;
 
-        public ViewHolder(View rootView, View.OnClickListener listener) {
+        ViewHolder(View rootView, View.OnClickListener listener) {
             super(rootView);
             this.rootView = (ConstraintLayout) rootView;
             this.rootView.setOnClickListener(listener);
