@@ -1,12 +1,12 @@
-package com.jimzrt.umsmounter.ViewModels;
+package com.jimzrt.umsmounter.viewmodels;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
-import com.jimzrt.umsmounter.Activities.MainActivity;
-import com.jimzrt.umsmounter.Model.ImageItem;
-import com.jimzrt.umsmounter.Utils.Helper;
+import com.jimzrt.umsmounter.activities.MainActivity;
+import com.jimzrt.umsmounter.model.ImageItem;
+import com.jimzrt.umsmounter.utils.Helper;
 
 import java.io.File;
 import java.util.ArrayList;

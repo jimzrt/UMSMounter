@@ -1,4 +1,4 @@
-package com.jimzrt.umsmounter.Fragments;
+package com.jimzrt.umsmounter.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -14,9 +14,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.jimzrt.umsmounter.Activities.MainActivity;
 import com.jimzrt.umsmounter.R;
-import com.jimzrt.umsmounter.Utils.Helper;
+import com.jimzrt.umsmounter.activities.MainActivity;
+import com.jimzrt.umsmounter.utils.Helper;
 import com.topjohnwu.superuser.Shell;
 
 

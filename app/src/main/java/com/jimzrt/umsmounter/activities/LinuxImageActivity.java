@@ -1,4 +1,4 @@
-package com.jimzrt.umsmounter.Activities;
+package com.jimzrt.umsmounter.activities;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,9 +11,9 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.jimzrt.umsmounter.Model.DownloadItem;
-import com.jimzrt.umsmounter.Model.Release;
 import com.jimzrt.umsmounter.R;
+import com.jimzrt.umsmounter.model.DownloadItem;
+import com.jimzrt.umsmounter.model.Release;
 
 /**
  * Created by james on 27.02.18.

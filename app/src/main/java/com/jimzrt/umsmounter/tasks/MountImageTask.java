@@ -1,9 +1,9 @@
-package com.jimzrt.umsmounter.Tasks;
+package com.jimzrt.umsmounter.tasks;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.jimzrt.umsmounter.Model.ImageItem;
+import com.jimzrt.umsmounter.model.ImageItem;
 import com.topjohnwu.superuser.Shell;
 
 

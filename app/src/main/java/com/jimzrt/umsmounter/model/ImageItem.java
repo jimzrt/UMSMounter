@@ -1,10 +1,25 @@
-package com.jimzrt.umsmounter.Model;
+package com.jimzrt.umsmounter.model;
 
 
 public class ImageItem implements Comparable<ImageItem> {
     private String name;
     private String rootPath;
     private String userPath;
+    private String url;
+    private boolean downloading;
+    private int progress;
+    private int downloadId = -1;
+    private String size;
+    private Boolean isSelected = false;
+    private Boolean isMounted = false;
+
+
+    public ImageItem(String name, String rootPath, String userPath, String size) {
+        this.name = name;
+        this.rootPath = rootPath;
+        this.userPath = userPath;
+        this.size = size;
+    }
 
     public String getUrl() {
         return url;
@@ -13,16 +28,6 @@ public class ImageItem implements Comparable<ImageItem> {
     public void setUrl(String url) {
         this.url = url;
     }
-
-    private String url;
-    private boolean downloading;
-    private int progress;
-    private int downloadId = -1;
-
-    public void setDownloadId(int downloadId) {
-        this.downloadId = downloadId;
-    }
-
 
     @Override
     public boolean equals(Object o) {
@@ -43,7 +48,9 @@ public class ImageItem implements Comparable<ImageItem> {
         return size;
     }
 
-    private String size;
+    public void setSize(String size) {
+        this.size = size;
+    }
 
     public Boolean getSelected() {
         return isSelected;
@@ -61,16 +68,6 @@ public class ImageItem implements Comparable<ImageItem> {
         isMounted = mounted;
     }
 
-    private Boolean isSelected = false;
-    private Boolean isMounted = false;
-
-    public ImageItem(String name, String rootPath, String userPath, String size) {
-        this.name = name;
-        this.rootPath = rootPath;
-        this.userPath = userPath;
-        this.size = size;
-    }
-
     public String getName() {
         return name;
     }
@@ -83,10 +80,17 @@ public class ImageItem implements Comparable<ImageItem> {
         return rootPath;
     }
 
+    public void setRootPath(String rootPath) {
+        this.rootPath = rootPath;
+    }
+
     public String getUserPath() {
         return userPath;
     }
 
+    public void setUserPath(String userPath) {
+        this.userPath = userPath;
+    }
 
     @Override
     public String toString() {
@@ -114,20 +118,11 @@ public class ImageItem implements Comparable<ImageItem> {
         this.progress = progress;
     }
 
-    public void setSize(String size) {
-        this.size = size;
-    }
-
-
-    public void setUserPath(String userPath) {
-        this.userPath = userPath;
-    }
-
-    public void setRootPath(String rootPath) {
-        this.rootPath = rootPath;
-    }
-
     public int getDownloadId() {
         return downloadId;
+    }
+
+    public void setDownloadId(int downloadId) {
+        this.downloadId = downloadId;
     }
 }

@@ -1,4 +1,4 @@
-package com.jimzrt.umsmounter.ListAdapters;
+package com.jimzrt.umsmounter.listadapters;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
@@ -16,15 +16,79 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.jimzrt.umsmounter.Model.ImageItem;
 import com.jimzrt.umsmounter.R;
-import com.jimzrt.umsmounter.Utils.Helper;
+import com.jimzrt.umsmounter.model.ImageItem;
+import com.jimzrt.umsmounter.utils.Helper;
 
 import java.util.List;
 
 public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.ViewHolder> implements View.OnClickListener {
 
     RecyclerView mRecyclerView;
+    Context mContext;
+    OnImageListListener mCallback;
+
+    //private HashSet<Integer> animationMap = new HashSet<>();
+    private SortedList<ImageItem> dataSet;
+    private int lastSelected = -1;
+    private int lastMounted = -1;
+
+    public ImageListAdapter(List<ImageItem> data, Context context, OnImageListListener listener) {
+        // super(context, R.layout.row_item, data);
+        this.dataSet = new SortedList<>(ImageItem.class, new SortedList.Callback<ImageItem>() {
+            @Override
+            public int compare(ImageItem o1, ImageItem o2) {
+                return o1.compareTo(o2);
+            }
+
+            @Override
+            public void onChanged(int position, int count) {
+                notifyItemRangeChanged(position, count);
+
+            }
+
+            @Override
+            public boolean areContentsTheSame(ImageItem oldItem, ImageItem newItem) {
+                return oldItem.equals(newItem);
+            }
+
+            @Override
+            public boolean areItemsTheSame(ImageItem item1, ImageItem item2) {
+                return item1.equals(item2);
+            }
+
+            @Override
+            public void onInserted(int position, int count) {
+                notifyItemRangeInserted(position, count);
+
+            }
+
+            @Override
+            public void onRemoved(int position, int count) {
+                notifyItemRangeRemoved(position, count);
+
+            }
+
+            @Override
+            public void onMoved(int fromPosition, int toPosition) {
+                notifyItemMoved(fromPosition, toPosition);
+
+            }
+        });
+
+        if (data != null) {
+            dataSet.beginBatchedUpdates();
+            for (int i = 0; i < data.size(); i++) {
+                dataSet.add(data.get(i));
+            }
+            dataSet.endBatchedUpdates();
+        }
+
+
+        this.mContext = context;
+        this.mCallback = listener;
+
+    }
 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
@@ -56,8 +120,6 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
         holder.progressBar = rootView.findViewById(R.id.progressBar);
         return holder;
     }
-
-    //private HashSet<Integer> animationMap = new HashSet<>();
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position, List<Object> payloads) {
@@ -325,7 +387,6 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
 
     }
 
-
     public void addItems(List<ImageItem> list) {
 
         // dataSet.beginBatchedUpdates();
@@ -384,41 +445,9 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
         //this.selectedItem = selectedItem;
     }
 
-    public interface OnImageListListener {
-
-        void onMountImageButtonClicked();
-
-        void onDeleteImageButtonClicked();
-
-        void onImageSelected(ImageItem item);
+    public int getSelectedItemPosition() {
+        return lastSelected;
     }
-
-
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        private ConstraintLayout rootView;
-        private ImageView imageView;
-        private TextView name;
-        private TextView size;
-        private ToggleButton mountButton;
-        private Button deleteButton;
-        private ProgressBar progressBar;
-        private boolean animated;
-
-        public ViewHolder(View rootView, View.OnClickListener listener) {
-            super(rootView);
-            this.rootView = (ConstraintLayout) rootView;
-            this.rootView.setOnClickListener(listener);
-        }
-    }
-
-
-    private SortedList<ImageItem> dataSet;
-    Context mContext;
-    OnImageListListener mCallback;
-
-
-    private int lastSelected = -1;
-
 
     private void setSelectedItemPosition(int position) {
         //notifyDataSetChanged();
@@ -447,71 +476,9 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
         lastSelected = position;
     }
 
-    public int getSelectedItemPosition() {
-        return lastSelected;
+    public int getMountedItemPosition() {
+        return lastMounted;
     }
-
-
-    public ImageListAdapter(List<ImageItem> data, Context context, OnImageListListener listener) {
-        // super(context, R.layout.row_item, data);
-        this.dataSet = new SortedList<>(ImageItem.class, new SortedList.Callback<ImageItem>() {
-            @Override
-            public int compare(ImageItem o1, ImageItem o2) {
-                return o1.compareTo(o2);
-            }
-
-            @Override
-            public void onChanged(int position, int count) {
-                notifyItemRangeChanged(position, count);
-
-            }
-
-            @Override
-            public boolean areContentsTheSame(ImageItem oldItem, ImageItem newItem) {
-                return oldItem.equals(newItem);
-            }
-
-            @Override
-            public boolean areItemsTheSame(ImageItem item1, ImageItem item2) {
-                return item1.equals(item2);
-            }
-
-            @Override
-            public void onInserted(int position, int count) {
-                notifyItemRangeInserted(position, count);
-
-            }
-
-            @Override
-            public void onRemoved(int position, int count) {
-                notifyItemRangeRemoved(position, count);
-
-            }
-
-            @Override
-            public void onMoved(int fromPosition, int toPosition) {
-                notifyItemMoved(fromPosition, toPosition);
-
-            }
-        });
-
-        if (data != null) {
-            dataSet.beginBatchedUpdates();
-            for (int i = 0; i < data.size(); i++) {
-                dataSet.add(data.get(i));
-            }
-            dataSet.endBatchedUpdates();
-        }
-
-
-
-        this.mContext = context;
-        this.mCallback = listener;
-
-    }
-
-
-    private int lastMounted = -1;
 
     public void setMountedItemPosition(int mountedItemPosition) {
         if (lastMounted != -1) {
@@ -526,7 +493,29 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
 
     }
 
-    public int getMountedItemPosition() {
-        return lastMounted;
+    public interface OnImageListListener {
+
+        void onMountImageButtonClicked();
+
+        void onDeleteImageButtonClicked();
+
+        void onImageSelected(ImageItem item);
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        private ConstraintLayout rootView;
+        private ImageView imageView;
+        private TextView name;
+        private TextView size;
+        private ToggleButton mountButton;
+        private Button deleteButton;
+        private ProgressBar progressBar;
+        private boolean animated;
+
+        public ViewHolder(View rootView, View.OnClickListener listener) {
+            super(rootView);
+            this.rootView = (ConstraintLayout) rootView;
+            this.rootView.setOnClickListener(listener);
+        }
     }
 }

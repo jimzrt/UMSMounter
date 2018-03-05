@@ -1,4 +1,4 @@
-package com.jimzrt.umsmounter.Fragments;
+package com.jimzrt.umsmounter.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;

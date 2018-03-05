@@ -1,4 +1,4 @@
-package com.jimzrt.umsmounter.Activities;
+package com.jimzrt.umsmounter.activities;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -19,20 +19,20 @@ import android.view.MenuItem;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jimzrt.umsmounter.BuildConfig;
-import com.jimzrt.umsmounter.Fragments.CreditsFragment;
-import com.jimzrt.umsmounter.Fragments.DownloadFragment;
-import com.jimzrt.umsmounter.Fragments.ImageCreationFragment;
-import com.jimzrt.umsmounter.Fragments.MainFragment;
-import com.jimzrt.umsmounter.Model.DownloadItem;
-import com.jimzrt.umsmounter.Model.ImageItem;
 import com.jimzrt.umsmounter.R;
-import com.jimzrt.umsmounter.Tasks.BaseTask;
-import com.jimzrt.umsmounter.Tasks.CheckFolderTask;
-import com.jimzrt.umsmounter.Tasks.CheckMassStorageTask;
-import com.jimzrt.umsmounter.Tasks.CheckRootTask;
-import com.jimzrt.umsmounter.Tasks.SetPathsTask;
-import com.jimzrt.umsmounter.Utils.BackgroundTask;
-import com.jimzrt.umsmounter.Utils.Helper;
+import com.jimzrt.umsmounter.fragments.CreditsFragment;
+import com.jimzrt.umsmounter.fragments.DownloadFragment;
+import com.jimzrt.umsmounter.fragments.ImageCreationFragment;
+import com.jimzrt.umsmounter.fragments.MainFragment;
+import com.jimzrt.umsmounter.model.DownloadItem;
+import com.jimzrt.umsmounter.model.ImageItem;
+import com.jimzrt.umsmounter.tasks.BaseTask;
+import com.jimzrt.umsmounter.tasks.CheckFolderTask;
+import com.jimzrt.umsmounter.tasks.CheckMassStorageTask;
+import com.jimzrt.umsmounter.tasks.CheckRootTask;
+import com.jimzrt.umsmounter.tasks.SetPathsTask;
+import com.jimzrt.umsmounter.utils.BackgroundTask;
+import com.jimzrt.umsmounter.utils.Helper;
 
 public class MainActivity extends AppCompatActivity implements ImageCreationFragment.OnImageCreationListener, DownloadFragment.OnImageDownloadListener {
 

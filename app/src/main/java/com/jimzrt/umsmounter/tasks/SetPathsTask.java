@@ -1,9 +1,9 @@
-package com.jimzrt.umsmounter.Tasks;
+package com.jimzrt.umsmounter.tasks;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.jimzrt.umsmounter.Activities.MainActivity;
+import com.jimzrt.umsmounter.activities.MainActivity;
 import com.topjohnwu.superuser.Shell;
 
 import java.util.List;

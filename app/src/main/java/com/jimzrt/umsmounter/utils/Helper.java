@@ -1,4 +1,4 @@
-package com.jimzrt.umsmounter.Utils;
+package com.jimzrt.umsmounter.utils;
 
 import android.Manifest;
 import android.app.Activity;

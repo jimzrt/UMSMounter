@@ -1,4 +1,4 @@
-package com.jimzrt.umsmounter.Model;
+package com.jimzrt.umsmounter.model;
 
 import android.support.annotation.NonNull;
 

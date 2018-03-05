@@ -1,4 +1,4 @@
-package com.jimzrt.umsmounter.Fragments;
+package com.jimzrt.umsmounter.fragments;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -18,10 +18,10 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.jimzrt.umsmounter.ListAdapters.ImageDownloadListAdapter;
-import com.jimzrt.umsmounter.Model.DownloadItem;
 import com.jimzrt.umsmounter.R;
-import com.jimzrt.umsmounter.Utils.Helper;
+import com.jimzrt.umsmounter.listadapters.ImageDownloadListAdapter;
+import com.jimzrt.umsmounter.model.DownloadItem;
+import com.jimzrt.umsmounter.utils.Helper;
 
 import java.io.File;
 import java.io.FileReader;
@@ -39,6 +39,64 @@ import java.util.List;
 
 
 public class DownloadFragment extends Fragment {
+
+    OnImageDownloadListener mCallback;
+    RecyclerView recyclerView;
+    ImageDownloadListAdapter listViewAdapter;
+    private TextView updatedTextView;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            mCallback = (OnImageDownloadListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement OnHeadlineSelectedListener");
+        }
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        if (getActivity() != null) {
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Download Image");
+        }
+
+
+        View view = inflater.inflate(R.layout.fragment_download, container, false);
+        recyclerView = view.findViewById(R.id.downloadImageList);
+        updatedTextView = view.findViewById(R.id.updatedTextView);
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(mLayoutManager);
+
+        listViewAdapter = new ImageDownloadListAdapter(null, mCallback);
+        recyclerView.setAdapter(listViewAdapter);
+        recyclerView.setHasFixedSize(true);
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                mLayoutManager.getOrientation());
+        recyclerView.addItemDecoration(dividerItemDecoration);
+
+        new DownloadFilesTask().execute(false);
+
+        ImageButton refreshButton = view.findViewById(R.id.buttonRefreshDownload);
+        refreshButton.setOnClickListener(v -> {
+            listViewAdapter.clear();
+            new DownloadFilesTask().execute(true);
+        });
+
+
+        return view;
+    }
+
+    public interface OnImageDownloadListener {
+        void OnImageListClick(DownloadItem downloadItem);
+    }
 
     private class DownloadFilesTask extends AsyncTask<Boolean, Void, List<DownloadItem>> {
 
@@ -109,67 +167,5 @@ public class DownloadFragment extends Fragment {
             listViewAdapter.setItems(list);
             listViewAdapter.notifyDataSetChanged();
         }
-    }
-
-
-    private TextView updatedTextView;
-
-    public interface OnImageDownloadListener {
-        void OnImageListClick(DownloadItem downloadItem);
-    }
-
-    OnImageDownloadListener mCallback;
-
-    RecyclerView recyclerView;
-    ImageDownloadListAdapter listViewAdapter;
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-        // This makes sure that the container activity has implemented
-        // the callback interface. If not, it throws an exception
-        try {
-            mCallback = (OnImageDownloadListener) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
-                    + " must implement OnHeadlineSelectedListener");
-        }
-    }
-
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
-        if (getActivity() != null) {
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Download Image");
-        }
-
-
-        View view = inflater.inflate(R.layout.fragment_download, container, false);
-        recyclerView = view.findViewById(R.id.downloadImageList);
-        updatedTextView = view.findViewById(R.id.updatedTextView);
-        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(mLayoutManager);
-
-        listViewAdapter = new ImageDownloadListAdapter(null, mCallback);
-        recyclerView.setAdapter(listViewAdapter);
-        recyclerView.setHasFixedSize(true);
-
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
-                mLayoutManager.getOrientation());
-        recyclerView.addItemDecoration(dividerItemDecoration);
-
-        new DownloadFilesTask().execute(false);
-
-        ImageButton refreshButton = view.findViewById(R.id.buttonRefreshDownload);
-        refreshButton.setOnClickListener(v -> {
-            listViewAdapter.clear();
-            new DownloadFilesTask().execute(true);
-        });
-
-
-        return view;
     }
 }

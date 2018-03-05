@@ -1,6 +1,6 @@
-package com.jimzrt.umsmounter.Model;
+package com.jimzrt.umsmounter.model;
 
-import com.jimzrt.umsmounter.Utils.Helper;
+import com.jimzrt.umsmounter.utils.Helper;
 
 public class Release {
     public String url;

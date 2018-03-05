@@ -1,4 +1,4 @@
-package com.jimzrt.umsmounter.ListAdapters;
+package com.jimzrt.umsmounter.listadapters;
 
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
@@ -7,9 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.jimzrt.umsmounter.Fragments.DownloadFragment;
-import com.jimzrt.umsmounter.Model.DownloadItem;
 import com.jimzrt.umsmounter.R;
+import com.jimzrt.umsmounter.fragments.DownloadFragment;
+import com.jimzrt.umsmounter.model.DownloadItem;
 
 import java.util.List;
 
@@ -18,11 +18,15 @@ import java.util.List;
  */
 
 public class ImageDownloadListAdapter extends RecyclerView.Adapter<ImageDownloadListAdapter.ViewHolder> implements View.OnClickListener {
+    RecyclerView mRecyclerView;
     private DownloadFragment.OnImageDownloadListener mCallback;
     private List<DownloadItem> mDataset;
 
-
-    RecyclerView mRecyclerView;
+    // Provide a suitable constructor (depends on the kind of dataset)
+    public ImageDownloadListAdapter(List<DownloadItem> myDataset, DownloadFragment.OnImageDownloadListener mCallback) {
+        mDataset = myDataset;
+        this.mCallback = mCallback;
+    }
 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
@@ -47,34 +51,6 @@ public class ImageDownloadListAdapter extends RecyclerView.Adapter<ImageDownload
     public void clear() {
         mDataset.clear();
         notifyDataSetChanged();
-    }
-
-    // Provide a reference to the views for each data item
-    // Complex data items may need more than one view per item, and
-    // you provide access to all the views for a data item in a view holder
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
-        ConstraintLayout root;
-        TextView downloadNameView;
-        TextView downloadUrlView;
-        TextView downloadReleasesView;
-
-        ViewHolder(ConstraintLayout v, View.OnClickListener listener) {
-            super(v);
-            root = v;
-            root.setOnClickListener(listener);
-            downloadNameView = v.findViewById(R.id.downloadName);
-            downloadUrlView = v.findViewById(R.id.download_url);
-            downloadReleasesView = v.findViewById(R.id.download_releases);
-
-        }
-
-    }
-
-    // Provide a suitable constructor (depends on the kind of dataset)
-    public ImageDownloadListAdapter(List<DownloadItem> myDataset, DownloadFragment.OnImageDownloadListener mCallback) {
-        mDataset = myDataset;
-        this.mCallback = mCallback;
     }
 
     // Create new views (invoked by the layout manager)
@@ -107,5 +83,27 @@ public class ImageDownloadListAdapter extends RecyclerView.Adapter<ImageDownload
         if (mDataset == null)
             return 0;
         return mDataset.size();
+    }
+
+    // Provide a reference to the views for each data item
+    // Complex data items may need more than one view per item, and
+    // you provide access to all the views for a data item in a view holder
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        // each data item is just a string in this case
+        ConstraintLayout root;
+        TextView downloadNameView;
+        TextView downloadUrlView;
+        TextView downloadReleasesView;
+
+        ViewHolder(ConstraintLayout v, View.OnClickListener listener) {
+            super(v);
+            root = v;
+            root.setOnClickListener(listener);
+            downloadNameView = v.findViewById(R.id.downloadName);
+            downloadUrlView = v.findViewById(R.id.download_url);
+            downloadReleasesView = v.findViewById(R.id.download_releases);
+
+        }
+
     }
 }

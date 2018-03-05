@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.jimzrt.umsmounter.Activities.MainActivity"
+            android:name="com.jimzrt.umsmounter.activities.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -22,8 +22,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.jimzrt.umsmounter.Activities.LinuxImageActivity"
-            android:parentActivityName="com.jimzrt.umsmounter.Activities.MainActivity" />
+            android:name="com.jimzrt.umsmounter.activities.LinuxImageActivity"
+            android:parentActivityName="com.jimzrt.umsmounter.activities.MainActivity" />
     </application>
 
 </manifest>

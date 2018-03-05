@@ -1,4 +1,4 @@
-package com.jimzrt.umsmounter.Fragments;
+package com.jimzrt.umsmounter.fragments;
 
 import android.app.AlertDialog;
 import android.arch.lifecycle.ViewModelProviders;
@@ -24,16 +24,16 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jimzrt.umsmounter.Activities.MainActivity;
-import com.jimzrt.umsmounter.ListAdapters.ImageListAdapter;
-import com.jimzrt.umsmounter.Model.ImageItem;
 import com.jimzrt.umsmounter.R;
-import com.jimzrt.umsmounter.Tasks.BaseTask;
-import com.jimzrt.umsmounter.Tasks.MountImageTask;
-import com.jimzrt.umsmounter.Tasks.UnmountingTask;
-import com.jimzrt.umsmounter.Utils.BackgroundTask;
-import com.jimzrt.umsmounter.Utils.Helper;
-import com.jimzrt.umsmounter.ViewModels.ImageItemViewModel;
+import com.jimzrt.umsmounter.activities.MainActivity;
+import com.jimzrt.umsmounter.listadapters.ImageListAdapter;
+import com.jimzrt.umsmounter.model.ImageItem;
+import com.jimzrt.umsmounter.tasks.BaseTask;
+import com.jimzrt.umsmounter.tasks.MountImageTask;
+import com.jimzrt.umsmounter.tasks.UnmountingTask;
+import com.jimzrt.umsmounter.utils.BackgroundTask;
+import com.jimzrt.umsmounter.utils.Helper;
+import com.jimzrt.umsmounter.viewmodels.ImageItemViewModel;
 import com.tonyodev.fetch2.Download;
 import com.tonyodev.fetch2.Fetch;
 import com.tonyodev.fetch2.FetchListener;

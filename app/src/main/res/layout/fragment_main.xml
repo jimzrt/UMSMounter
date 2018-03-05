@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_main"
-    android:tag="fragment_main"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:minHeight="118dp"
-    tools:context="com.jimzrt.umsmounter.Fragments.MainFragment"
+    android:tag="fragment_main"
+    tools:context="com.jimzrt.umsmounter.fragments.MainFragment"
     tools:layout_editor_absoluteY="137dp"
 
     >
