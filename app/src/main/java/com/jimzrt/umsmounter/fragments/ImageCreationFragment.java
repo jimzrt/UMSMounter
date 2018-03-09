@@ -124,9 +124,9 @@ public class ImageCreationFragment extends Fragment {
                         Helper.verifyStoragePermissions(getActivity());
                     });
 
-                    String cacheDir = getContext().getCacheDir().getAbsolutePath();
+                    String cacheDir = MainActivity.ROOTPATH + MainActivity.CACHEDIR;
 
-                    Shell.Sync.sh("busybox truncate -s" + imageSize + "M " + cacheDir + "/tmp.img", "echo \"o\\nn\\np\\n1\\n2\\n\\nt\\nc\\na\\n1\\nw\\n\" | busybox fdisk -S 32 -H 64 " + cacheDir + "/tmp.img", "busybox dd if=" + cacheDir + "/tmp.img of=" + MainActivity.ROOTPATH + "/" + imageName + " bs=512 count=2048", "rm " + cacheDir + "/tmp.img", "busybox truncate -s" + (imageSize - 1) + "M " + cacheDir + "/fat.img", "busybox mkfs.vfat -n DRIVE " + cacheDir + "/fat.img", "chmod 777 " + cacheDir + "/fat.img", "chmod 777 " + MainActivity.ROOTPATH + "/" + imageName);
+                    Shell.Sync.sh("busybox truncate -s" + imageSize + "M " + cacheDir + "/tmp.img", "echo \"x\\nc\\n" + imageSize + "\\nr\\no\\nn\\np\\n1\\n2\\n\\nt\\nc\\na\\n1\\nw\\n\" | busybox fdisk -S 32 -H 64 " + cacheDir + "/tmp.img", "fdisk -l " + cacheDir + "/tmp.img", "busybox dd if=" + cacheDir + "/tmp.img of=" + MainActivity.ROOTPATH + "/" + imageName + " bs=512 count=2048", "rm " + cacheDir + "/tmp.img", "busybox truncate -s" + (imageSize - 1) + "M " + cacheDir + "/fat.img", "busybox mkfs.vfat -n DRIVE " + cacheDir + "/fat.img", "chmod 777 " + cacheDir + "/fat.img", "chmod 777 " + MainActivity.ROOTPATH + "/" + imageName);
                     getActivity().runOnUiThread(() -> barProgressDialog.setProgress(100));
 
 

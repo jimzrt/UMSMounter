@@ -334,7 +334,7 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
         Thread createImageThread = new Thread(() -> {
             try {
 
-                String sourceFile = getContext().getCacheDir().getAbsolutePath() + "/fat.img";
+                String sourceFile = MainActivity.USERPATH + MainActivity.CACHEDIR + "/fat.img";
                 FileInputStream fis = null;
                 FileOutputStream fos = null;
                 long size = 0;

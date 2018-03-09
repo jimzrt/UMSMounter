@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 
 
     public static final String ROOTDIR = "/UMSMounter";
+    public static final String CACHEDIR = "/cache";
 
     public static String ROOTPATH;
     public static String USERPATH;
@@ -50,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 
     private Fragment currentFragment;
 
-    private Toolbar toolbar;
     private DrawerLayout mDrawerLayout;
     private NavigationView navigationView;
 
@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
         setContentView(R.layout.activity_main);
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         if (getSupportActionBar() != null) {
@@ -181,10 +181,10 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
     private void showDownloadImage() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.setCustomAnimations(
-                R.anim.card_flip_right_in,
-                R.anim.card_flip_right_out,
-                R.anim.card_flip_left_in,
-                R.anim.card_flip_left_out);
+                R.animator.card_flip_right_in,
+                R.animator.card_flip_right_out,
+                R.animator.card_flip_left_in,
+                R.animator.card_flip_left_out);
 
         if (currentFragment == mainFragment) {
             transaction.hide(mainFragment);
@@ -203,10 +203,10 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
     private void showCredits() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.setCustomAnimations(
-                R.anim.card_flip_right_in,
-                R.anim.card_flip_right_out,
-                R.anim.card_flip_left_in,
-                R.anim.card_flip_left_out);
+                R.animator.card_flip_right_in,
+                R.animator.card_flip_right_out,
+                R.animator.card_flip_left_in,
+                R.animator.card_flip_left_out);
 
         if (currentFragment == mainFragment) {
             transaction.hide(mainFragment);
@@ -232,10 +232,10 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
     private void showCreateImage() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.setCustomAnimations(
-                R.anim.card_flip_right_in,
-                R.anim.card_flip_right_out,
-                R.anim.card_flip_left_in,
-                R.anim.card_flip_left_out);
+                R.animator.card_flip_right_in,
+                R.animator.card_flip_right_out,
+                R.animator.card_flip_left_in,
+                R.animator.card_flip_left_out);
         if (currentFragment == mainFragment) {
             transaction.hide(mainFragment);
         } else {
@@ -251,10 +251,10 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
     private void showMain() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.setCustomAnimations(
-                R.anim.card_flip_left_in,
-                R.anim.card_flip_left_out,
-                R.anim.card_flip_right_in,
-                R.anim.card_flip_right_out);
+                R.animator.card_flip_left_in,
+                R.animator.card_flip_left_out,
+                R.animator.card_flip_right_in,
+                R.animator.card_flip_right_out);
         transaction.remove(currentFragment);
         transaction.show(mainFragment);
         //transaction.addToBackStack(null);
@@ -327,7 +327,7 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }
-        })).setTasks(new BaseTask[]{new CheckRootTask(), new CheckFolderTask(), new SetPathsTask(), new CheckMassStorageTask()}).execute();
+        })).setTasks(new BaseTask[]{new CheckRootTask(), new SetPathsTask(), new CheckFolderTask(), new CheckMassStorageTask()}).execute();
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.jimzrt.umsmounter.tasks;
 
 
-import android.os.Environment;
+import com.jimzrt.umsmounter.activities.MainActivity;
 
 import java.io.File;
 
@@ -15,7 +15,7 @@ public class CheckFolderTask extends BaseTask {
     @Override
     public boolean execute() {
 
-        String path = Environment.getExternalStorageDirectory().toString()+"/UMSMounter";
+        String path = MainActivity.USERPATH;
         File f = new File(path);
         boolean success = true;
 
@@ -23,12 +23,14 @@ public class CheckFolderTask extends BaseTask {
             success = f.mkdir();
                     this.result = "Path " + path + " not found, creating.\n";
                 }
+        String cachePath = MainActivity.USERPATH + MainActivity.CACHEDIR;
+        f = new File(cachePath);
+        if (!f.exists()) {
+            success = f.mkdir();
+            this.result = "Cache path " + cachePath + " not found, creating.\n";
+        }
 
-                File files[] = f.listFiles();
-                if(files != null) {
 
-                    this.result = "Found path " + path + " with " + files.length + " files.\n";
-                }
 
         return success;
 

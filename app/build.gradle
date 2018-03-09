@@ -13,13 +13,20 @@ android {
         minSdkVersion 19
         targetSdkVersion 27
         versionCode 1
-        versionName "0.1"
+        versionName "0.1.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled true
+            shrinkResources true
+            zipAlignEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
         }
     }
     compileOptions {
@@ -41,8 +48,8 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-    implementation 'com.github.topjohnwu:libsu:1.1.1'
-    compile 'com.google.code.gson:gson:2.8.2'
+    implementation 'com.github.jimzrt:libsu:1.1.2'
+    implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'com.tonyodev.fetch2:fetch2:2.0.0-RC8'
     implementation 'android.arch.lifecycle:extensions:1.1.0'
 }
