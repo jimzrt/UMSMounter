@@ -8,6 +8,7 @@ import android.support.v4.app.ActivityCompat;
 import android.text.format.DateFormat;
 import android.util.TypedValue;
 
+import java.io.File;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Locale;
@@ -84,5 +85,10 @@ public class Helper {
         }
     }
 
+    public static String combinePaths(String path1, String path2) {
+        File file1 = new File(path1);
+        File file2 = new File(file1, path2);
+        return file2.getPath();
+    }
 
 }
