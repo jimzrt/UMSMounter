@@ -2,11 +2,12 @@ package com.jimzrt.umsmounter.tasks;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Environment;
 
 import com.jimzrt.umsmounter.activities.MainActivity;
-import com.topjohnwu.superuser.Shell;
+import com.jimzrt.umsmounter.utils.Helper;
 
-import java.util.List;
+import java.io.File;
 
 public class SetPathsTask extends BaseTask {
 
@@ -17,9 +18,19 @@ public class SetPathsTask extends BaseTask {
 
     @Override
     public boolean execute() {
-        List<String> out = Shell.Sync.sh("echo $EMULATED_STORAGE_SOURCE", "echo $EMULATED_STORAGE_TARGET");
-        MainActivity.ROOTPATH = out.get(0) + "/0" + MainActivity.ROOTDIR;
-        MainActivity.USERPATH = out.get(1) + "/0" + MainActivity.ROOTDIR;
+
+        File file = ctx.get().getExternalFilesDir(null);
+        String applicationSpecificAbsolutePath = file.getAbsolutePath();
+        String rootPath = applicationSpecificAbsolutePath.substring(0, applicationSpecificAbsolutePath.indexOf("Android/data"));
+
+
+        File dir = Environment.getExternalStorageDirectory();
+        String userPath = dir.getAbsolutePath();
+
+
+        MainActivity.ROOTPATH = Helper.combinePaths(rootPath, MainActivity.ROOTDIR);
+        MainActivity.USERPATH = Helper.combinePaths(userPath, MainActivity.ROOTDIR);
+
         SharedPreferences sharedPref = this.ctx.get().getSharedPreferences(null, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("rootpath", MainActivity.ROOTPATH);

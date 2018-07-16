@@ -2,6 +2,7 @@ package com.jimzrt.umsmounter.tasks;
 
 
 import com.jimzrt.umsmounter.activities.MainActivity;
+import com.jimzrt.umsmounter.utils.Helper;
 
 import java.io.File;
 
@@ -23,7 +24,7 @@ public class CheckFolderTask extends BaseTask {
             success = f.mkdir();
                     this.result = "Path " + path + " not found, creating.\n";
                 }
-        String cachePath = MainActivity.USERPATH + MainActivity.CACHEDIR;
+        String cachePath = Helper.combinePaths(MainActivity.USERPATH, MainActivity.CACHEDIR);
         f = new File(cachePath);
         if (!f.exists()) {
             success = f.mkdir();

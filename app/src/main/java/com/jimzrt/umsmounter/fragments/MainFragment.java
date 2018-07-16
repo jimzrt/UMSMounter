@@ -36,10 +36,12 @@ import com.jimzrt.umsmounter.utils.Helper;
 import com.jimzrt.umsmounter.viewmodels.ImageItemViewModel;
 import com.tonyodev.fetch2.Download;
 import com.tonyodev.fetch2.Fetch;
+import com.tonyodev.fetch2.FetchConfiguration;
 import com.tonyodev.fetch2.FetchListener;
 import com.tonyodev.fetch2.NetworkType;
 import com.tonyodev.fetch2.Priority;
 import com.tonyodev.fetch2.Request;
+import com.tonyodev.fetch2core.DownloadBlock;
 import com.topjohnwu.superuser.Shell;
 
 import org.jetbrains.annotations.NotNull;
@@ -105,10 +107,11 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
 
 
         if (mainFetch == null) {
-            mainFetch = new Fetch.Builder(getContext(), "Main")
+            FetchConfiguration fetchConfiguration = new FetchConfiguration.Builder(getContext())
                     .setDownloadConcurrentLimit(4) // Allows Fetch to download 4 downloads in Parallel.
                     .enableLogging(true)
                     .build();
+            mainFetch = Fetch.Impl.getInstance(fetchConfiguration);
             mainFetch.cancelAll();
             mainFetch.removeAll();
 
@@ -334,7 +337,7 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
         Thread createImageThread = new Thread(() -> {
             try {
 
-                String sourceFile = MainActivity.USERPATH + MainActivity.CACHEDIR + "/fat.img";
+                String sourceFile = MainActivity.USERPATH + "/fat.img";
                 FileInputStream fis = null;
                 FileOutputStream fos = null;
                 long size = 0;
@@ -440,8 +443,18 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
 
 
             @Override
-            public void onQueued(Download download) {
-                Log.i("fetch", "added download with id " + download.getId());
+            public void onDownloadBlockUpdated(Download download, DownloadBlock downloadBlock, int i) {
+
+            }
+
+            @Override
+            public void onQueued(Download download, boolean b) {
+
+            }
+
+            @Override
+            public void onAdded(Download download) {
+
             }
 
             @Override
