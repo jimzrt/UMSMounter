@@ -19,9 +19,14 @@ public class SetPathsTask extends BaseTask {
     @Override
     public boolean execute() {
 
-        File file = ctx.get().getExternalFilesDir(null);
-        String applicationSpecificAbsolutePath = file.getAbsolutePath();
-        String rootPath = applicationSpecificAbsolutePath.substring(0, applicationSpecificAbsolutePath.indexOf("Android/data"));
+        //      File file = ctx.get().getExternalFilesDir(null);
+        //      String applicationSpecificAbsolutePath = file.getAbsolutePath();
+
+
+        String rootPath = System.getenv("EXTERNAL_STORAGE");
+        //   String rootPath = System.getenv("EMULATED_STORAGE_TARGET");
+
+        //  String rootPath = applicationSpecificAbsolutePath.substring(0, applicationSpecificAbsolutePath.indexOf("Android/data"));
 
 
         File dir = Environment.getExternalStorageDirectory();

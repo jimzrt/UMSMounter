@@ -35,6 +35,7 @@ import com.jimzrt.umsmounter.utils.BackgroundTask;
 import com.jimzrt.umsmounter.utils.Helper;
 import com.jimzrt.umsmounter.viewmodels.ImageItemViewModel;
 import com.tonyodev.fetch2.Download;
+import com.tonyodev.fetch2.Error;
 import com.tonyodev.fetch2.Fetch;
 import com.tonyodev.fetch2.FetchConfiguration;
 import com.tonyodev.fetch2.FetchListener;
@@ -45,6 +46,7 @@ import com.tonyodev.fetch2core.DownloadBlock;
 import com.topjohnwu.superuser.Shell;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -246,7 +248,7 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
     private void mount(ImageItem imageItem) {
 
 
-        List<String> output = Shell.Sync.sh("getprop sys.usb.config");
+        List<String> output = Shell.su("getprop sys.usb.config").exec().getOut();
         functionMode = output.get(0);
         if (functionMode == null || functionMode.contains("mass_storage")) {
             functionMode = "mtp,adb";
@@ -443,6 +445,29 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
 
 
             @Override
+            public void onWaitingNetwork(@NotNull Download download) {
+
+            }
+
+            @Override
+            public void onStarted(@NotNull Download download, @NotNull List<? extends DownloadBlock> list, int i) {
+
+            }
+
+            @Override
+            public void onError(@NotNull Download download, @NotNull Error error, @Nullable Throwable throwable) {
+                model.remove(imageItem);
+
+                getActivity().runOnUiThread(() -> {
+                    File file = new File(imageItem.getUserPath());
+                    file.delete();
+                    Toast.makeText(getContext(), "Deleted!", Toast.LENGTH_SHORT).show();
+                    mainFetch.removeListener(this);
+                    mainFetch.remove(download.getId());
+                });
+            }
+
+            @Override
             public void onDownloadBlockUpdated(Download download, DownloadBlock downloadBlock, int i) {
 
             }
@@ -470,19 +495,6 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
                 mainFetch.remove(download.getId());
             }
 
-            @Override
-            public void onError(@NotNull Download download) {
-                model.remove(imageItem);
-
-                getActivity().runOnUiThread(() -> {
-                    File file = new File(imageItem.getUserPath());
-                    file.delete();
-                    Toast.makeText(getContext(), "Deleted!", Toast.LENGTH_SHORT).show();
-                    mainFetch.removeListener(this);
-                    mainFetch.remove(download.getId());
-                });
-
-            }
 
             @Override
             public void onProgress(@NotNull Download download, long etaInMilliSeconds, long downloadedBytesPerSecond) {

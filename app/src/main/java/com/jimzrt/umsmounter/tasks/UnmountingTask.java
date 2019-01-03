@@ -31,15 +31,15 @@ public class UnmountingTask extends BaseTask {
 
         switch (usbMode) {
             case "configfs":
-                Shell.Sync.sh("setprop sys.usb.config none",
+                Shell.su("setprop sys.usb.config none",
                         "echo \"\" > /config/usb_gadget/g1/UDC",
                         "echo \"\" > " + usbPath + "/file",
-                        "setprop sys.usb.config " + oldFunctions);
+                        "setprop sys.usb.config " + oldFunctions).exec();
                 return true;
             case "android_usb":
-                Shell.Sync.sh("setprop sys.usb.config none",
+                Shell.su("setprop sys.usb.config none",
                         "echo \"\" > " + usbPath + "/file",
-                        "setprop sys.usb.config " + oldFunctions);
+                        "setprop sys.usb.config " + oldFunctions).exec();
                 this.result = "Reverted to " + oldFunctions + "!\n";
                 return true;
             default:

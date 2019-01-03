@@ -61,23 +61,23 @@ public class MountImageTask extends BaseTask {
 
         switch (usbMode) {
             case "configfs":
-                Shell.Sync.sh("setprop sys.usb.config none",
+                Shell.su("setprop sys.usb.config none",
                         "echo \"\" > /config/usb_gadget/g1/UDC",
                         "echo " + removable + " > " + usbPath + "/removable",
                         "echo " + ro + " > " + usbPath + "/ro",
                         "echo " + cdrom + " > " + usbPath + "/cdrom",
                         "echo \"" + imageItem.getRootPath() + "\" > " + usbPath + "/file",
-                        "setprop sys.usb.config mass_storage");
+                        "setprop sys.usb.config mass_storage").exec();
                 this.result = imageItem.getName() + " mounted!\n";
                 return true;
 
             case "android_usb":
-                Shell.Sync.sh("setprop sys.usb.config none",
+                Shell.su("setprop sys.usb.config none",
                         "echo > " + usbPath + "/file",
                         "echo " + ro + " > " + usbPath + "/ro",
                         "echo " + cdrom + " >  " + usbPath + "/cdrom",
                         "echo " + imageItem.getRootPath() + " > " + usbPath + "/file",
-                        "setprop sys.usb.config mass_storage");
+                        "setprop sys.usb.config mass_storage").exec();
 
                 this.result = imageItem.getName() + " mounted!\n";
                 return true;
