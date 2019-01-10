@@ -14,6 +14,8 @@ public class CheckMassStorageTask extends BaseTask {
 
     @Override
     public boolean execute() {
+
+
         SharedPreferences sharedPref = this.ctx.get().getSharedPreferences(null, Context.MODE_PRIVATE);
 
 

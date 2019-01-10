@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -29,6 +30,7 @@ import com.jimzrt.umsmounter.model.ImageItem;
 import com.jimzrt.umsmounter.tasks.BaseTask;
 import com.jimzrt.umsmounter.tasks.CheckFolderTask;
 import com.jimzrt.umsmounter.tasks.CheckMassStorageTask;
+import com.jimzrt.umsmounter.tasks.CheckPermissionTask;
 import com.jimzrt.umsmounter.tasks.CheckRootTask;
 import com.jimzrt.umsmounter.tasks.SetPathsTask;
 import com.jimzrt.umsmounter.utils.BackgroundTask;
@@ -42,6 +44,8 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 
     public static String ROOTPATH;
     public static String USERPATH;
+
+    public static int WRITE_EXTERNAL_STORAGE_PERM = 1337;
 
 
     private MainFragment mainFragment;
@@ -327,7 +331,7 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }
-        })).setTasks(new BaseTask[]{new CheckRootTask(), new SetPathsTask(), new CheckFolderTask(), new CheckMassStorageTask()}).execute();
+        })).setTasks(new BaseTask[]{new CheckRootTask(), new SetPathsTask(), new CheckFolderTask(), new CheckMassStorageTask(), new CheckPermissionTask()}).execute();
     }
 
     @Override
@@ -371,5 +375,23 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 
             }
         }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+
+        if (requestCode == WRITE_EXTERNAL_STORAGE_PERM) {
+            SharedPreferences sharedPref = getSharedPreferences(null, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putBoolean("hasPermission", true);
+            editor.apply();
+
+            Toast.makeText(this, "granteddd!!!", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "dont know this shit", Toast.LENGTH_LONG).show();
+        }
+
     }
 }
