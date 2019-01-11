@@ -265,6 +265,7 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
                 builder.setPositiveButton("Ok", null);
                 AlertDialog dialog = builder.create();
                 dialog.show();
+                model.unmount(imageItem);
             }
         }).setTasks(new BaseTask[]{new MountImageTask(imageItem, usbMode.getSelectedItem().toString())}).execute();
 

@@ -54,7 +54,7 @@ public class MountImageTask extends BaseTask {
         String usbPath = sharedPref.getString("usbPath", "Not supported");
         boolean cdRomSupport = sharedPref.getBoolean("cdrom", false);
         if (usbPath.equals("Not supported") || usbMode.equals("Not supported")) {
-            this.result = "not mounted!\n";
+            this.result = "Mounting not supported!\n";
             return false;
         }
 

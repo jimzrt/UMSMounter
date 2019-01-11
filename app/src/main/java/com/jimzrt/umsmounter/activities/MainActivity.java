@@ -313,11 +313,6 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
                 editor.putString("version", BuildConfig.VERSION_NAME);
                 editor.apply();
 
-                if (!mainFragment.isAdded()) {
-                    // Add the fragment to the 'fragment_container' FrameLayout
-                    getSupportFragmentManager().beginTransaction()
-                            .add(R.id.fragment_container, mainFragment).commit();
-                }
 
 
             } else {
@@ -331,7 +326,13 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }
-        })).setTasks(new BaseTask[]{new CheckRootTask(), new SetPathsTask(), new CheckFolderTask(), new CheckMassStorageTask(), new CheckPermissionTask()}).execute();
+            if (!mainFragment.isAdded()) {
+                // Add the fragment to the 'fragment_container' FrameLayout
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.fragment_container, mainFragment).commit();
+            }
+
+        })).setTasks(new BaseTask[]{new CheckRootTask(), new CheckPermissionTask(), new SetPathsTask(), new CheckFolderTask(), new CheckMassStorageTask()}).execute();
     }
 
     @Override

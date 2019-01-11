@@ -114,4 +114,10 @@ public class ImageItemViewModel extends ViewModel {
         //mounted.postValue(null);
         //unmounted.postValue(item);
     }
+
+    public void unmount(ImageItem imageItem) {
+
+        imageItem.setMounted(false);
+        mounted.postValue(imageItem);
+    }
 }
