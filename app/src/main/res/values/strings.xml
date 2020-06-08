@@ -3,7 +3,7 @@
     <string name="action_revert">Set to mtp,adb</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
-    <string name="check_dependencies">Check dependencies...</string>
+    <string name="check_dependencies">Check dependencies…</string>
     <string name="title">UMS Mounter</string>
     <string name="create_image">Create Image</string>
     <string name="download_image">Download Image</string>
@@ -12,7 +12,7 @@
     <string name="libraries_used">Libraries used:</string>
     <string name="acknowledgement">Acknowledgement:</string>
     <string name="source_code">Source code:</string>
-    <string name="create">Create...</string>
+    <string name="create">Create…</string>
     <string name="image_name">Image Name</string>
     <string name="img">.img</string>
     <string name="image_size">Image Size</string>

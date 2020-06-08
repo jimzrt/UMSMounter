@@ -1,7 +1,9 @@
 package com.jimzrt.umsmounter.model;
 
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+
+import java.util.Objects;
 
 public class ImageItem implements Comparable<ImageItem> {
     private String name;
@@ -38,7 +40,7 @@ public class ImageItem implements Comparable<ImageItem> {
 
         ImageItem imageItem = (ImageItem) o;
 
-        return name != null ? name.equals(imageItem.name) : imageItem.name == null;
+        return Objects.equals(name, imageItem.name);
     }
 
     @Override

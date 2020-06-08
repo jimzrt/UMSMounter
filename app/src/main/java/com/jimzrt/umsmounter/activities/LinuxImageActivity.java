@@ -3,11 +3,13 @@ package com.jimzrt.umsmounter.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -26,6 +28,7 @@ public class LinuxImageActivity extends AppCompatActivity {
 
         //((MainActivity)getActivity()).getSupportActionBar().setDisplayUseLogoEnabled(false);
         // ((MainActivity)getActivity()).getSupportActionBar().setHomeAsUpIndicator(null);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
         super.onCreate(savedInstanceState);
@@ -42,6 +45,7 @@ public class LinuxImageActivity extends AppCompatActivity {
         TextView urlView = findViewById(R.id.linuxUrl);
         Button downloadButton = findViewById(R.id.liunxDownload);
         nameView.setText(downloadItem.name);
+        getSupportActionBar().setTitle("Download " + downloadItem.name);
         urlView.setText(downloadItem.url);
         releaseList = findViewById(R.id.releaseList);
         releaseList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -62,7 +66,7 @@ public class LinuxImageActivity extends AppCompatActivity {
         downloadButton.setOnClickListener(v -> {
             Release rel = (Release) releaseList.getItemAtPosition(releaseList.getCheckedItemPosition());
             String url = rel.url;
-            String fileName = url.substring(url.lastIndexOf('/') + 1, url.length());
+            String fileName = url.substring(url.lastIndexOf('/') + 1);
 
 
             Intent returnIntent = new Intent();
@@ -76,5 +80,17 @@ public class LinuxImageActivity extends AppCompatActivity {
 
 
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 
 }

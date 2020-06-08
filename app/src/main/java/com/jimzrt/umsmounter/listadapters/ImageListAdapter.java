@@ -3,10 +3,6 @@ package com.jimzrt.umsmounter.listadapters;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Color;
-import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
-import android.support.v7.util.SortedList;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +11,11 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SortedList;
 
 import com.jimzrt.umsmounter.R;
 import com.jimzrt.umsmounter.model.ImageItem;
@@ -227,11 +228,10 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
                     if (imageItem.isDownloading()) {
                         holder.progressBar.setVisibility(View.VISIBLE);
                         holder.progressBar.setProgress(imageItem.getProgress());
-                        holder.size.setText(imageItem.getSize());
                     } else {
                         holder.progressBar.setVisibility(View.INVISIBLE);
-                        holder.size.setText(imageItem.getSize());
                     }
+                    holder.size.setText(imageItem.getSize());
 
                 }
             }

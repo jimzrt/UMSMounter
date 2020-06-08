@@ -4,17 +4,18 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -73,7 +74,7 @@ public class DownloadFragment extends Fragment {
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
 
-        listViewAdapter = new ImageDownloadListAdapter(null, mCallback);
+        listViewAdapter = new ImageDownloadListAdapter(new ArrayList<>(), mCallback);
         recyclerView.setAdapter(listViewAdapter);
         recyclerView.setHasFixedSize(true);
 
@@ -130,7 +131,7 @@ public class DownloadFragment extends Fragment {
                 }
             } else {
 
-                try (Reader reader = new InputStreamReader(new URL("http://softwarebakery.com/apps/drivedroid/repositories/main.json").openStream())) {
+                try (Reader reader = new InputStreamReader(new URL("https://softwarebakery.com/apps/drivedroid/repositories/main.json").openStream())) {
 
 
                     Gson gson = new GsonBuilder().create();
@@ -169,8 +170,8 @@ public class DownloadFragment extends Fragment {
             File file = new File(mWeakActivity.get().getFilesDir() + "/data.json");
             TextView updatedTextView = mWeakActivity.get().findViewById(R.id.updatedTextView);
             updatedTextView.setText("Last updated: " + Helper.convertDate("" + file.lastModified()));
-
-            listAdapter.setItems(list);
+            if (list != null)
+                listAdapter.setItems(list);
             listAdapter.notifyDataSetChanged();
         }
     }

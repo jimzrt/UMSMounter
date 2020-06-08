@@ -1,8 +1,8 @@
 package com.jimzrt.umsmounter.viewmodels;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 
 import com.jimzrt.umsmounter.activities.MainActivity;
 import com.jimzrt.umsmounter.model.ImageItem;
@@ -56,9 +56,12 @@ public class ImageItemViewModel extends ViewModel {
         File f = new File(path);
 
 
-        File files[] = f.listFiles();
+        File[] files = f.listFiles();
         if (files != null) {
             for (File file : files) {
+                if (file.getName().equals("cache")) {
+                    continue;
+                }
                 ImageItem item = new ImageItem(file.getName(), MainActivity.ROOTPATH + "/" + file.getName(), MainActivity.USERPATH + "/" + file.getName(), Helper.humanReadableByteCount(file.length()));
                 items.add(item);
             }

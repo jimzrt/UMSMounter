@@ -8,6 +8,6 @@ public class Release {
     private String size;
 
     public String toString() {
-        return url.substring(url.lastIndexOf('/') + 1, url.length()) + "\nversion: " + version + "\nsize: " + Helper.humanReadableByteCount(Long.parseLong(size));
+        return url.substring(url.lastIndexOf('/') + 1) + "\nversion: " + version + "\nsize: " + Helper.humanReadableByteCount(Long.parseLong(size));
     }
 }

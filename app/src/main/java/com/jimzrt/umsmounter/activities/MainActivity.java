@@ -5,18 +5,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jimzrt.umsmounter.BuildConfig;
@@ -45,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
     public static String ROOTPATH;
     public static String USERPATH;
 
-    public static int WRITE_EXTERNAL_STORAGE_PERM = 1337;
+    public static final int WRITE_EXTERNAL_STORAGE_PERM = 1337;
 
 
     private MainFragment mainFragment;
@@ -126,34 +128,39 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
         navigationView.setNavigationItemSelectedListener(
                 menuItem -> {
                     // set item as selected to persist highlight
-                    menuItem.setChecked(true);
+                    // menuItem.setChecked(true);
 
-                    mDrawerLayout.closeDrawers();
-
+                    //   mDrawerLayout.closeDrawers();
+                    final int delay = 150;
                     switch (menuItem.getItemId()) {
                         case R.id.nav_home:
                             if (currentFragment != mainFragment) {
-                                showMain();
+                                new Handler().postDelayed(() -> showMain(), delay);
                             }
                             break;
                         case R.id.nav_create_image:
                             if (currentFragment != createImageFragment) {
-                                showCreateImage();
+                                new Handler().postDelayed(() -> showCreateImage(), delay);
+
                             }
                             break;
                         case R.id.nav_download_image:
                             if (currentFragment != downloadFragment) {
-                                showDownloadImage();
+                                new Handler().postDelayed(() -> showDownloadImage(), delay);
+
                             }
                             break;
                         case R.id.nav_credits:
                             if (currentFragment != createImageFragment) {
-                                showCredits();
+                                new Handler().postDelayed(() -> showCredits(), delay);
+
                             }
 
                     }
                     // Add code here to update the UI based on the item selected
                     // For example, swap UI fragments here
+
+                    mDrawerLayout.closeDrawer(GravityCompat.START);
 
                     return true;
                 });
@@ -179,16 +186,13 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
                 });
 
 
-        Helper.trustAllHosts();
+        //Helper.trustAllHosts();
     }
 
     private void showDownloadImage() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.setCustomAnimations(
-                R.animator.card_flip_right_in,
-                R.animator.card_flip_right_out,
-                R.animator.card_flip_left_in,
-                R.animator.card_flip_left_out);
+        transaction.setCustomAnimations(android.R.anim.fade_in,
+                android.R.anim.fade_out);
 
         if (currentFragment == mainFragment) {
             transaction.hide(mainFragment);
@@ -206,11 +210,8 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 
     private void showCredits() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.setCustomAnimations(
-                R.animator.card_flip_right_in,
-                R.animator.card_flip_right_out,
-                R.animator.card_flip_left_in,
-                R.animator.card_flip_left_out);
+        transaction.setCustomAnimations(android.R.anim.fade_in,
+                android.R.anim.fade_out);
 
         if (currentFragment == mainFragment) {
             transaction.hide(mainFragment);
@@ -235,11 +236,8 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 
     private void showCreateImage() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.setCustomAnimations(
-                R.animator.card_flip_right_in,
-                R.animator.card_flip_right_out,
-                R.animator.card_flip_left_in,
-                R.animator.card_flip_left_out);
+        transaction.setCustomAnimations(android.R.anim.fade_in,
+                android.R.anim.fade_out);
         if (currentFragment == mainFragment) {
             transaction.hide(mainFragment);
         } else {
@@ -254,11 +252,8 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 
     private void showMain() {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.setCustomAnimations(
-                R.animator.card_flip_left_in,
-                R.animator.card_flip_left_out,
-                R.animator.card_flip_right_in,
-                R.animator.card_flip_right_out);
+        transaction.setCustomAnimations(android.R.anim.fade_in,
+                android.R.anim.fade_out);
         transaction.remove(currentFragment);
         transaction.show(mainFragment);
         //transaction.addToBackStack(null);
@@ -381,7 +376,7 @@ public class MainActivity extends AppCompatActivity implements ImageCreationFrag
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           String[] permissions, int[] grantResults) {
 
         if (requestCode == WRITE_EXTERNAL_STORAGE_PERM) {
             SharedPreferences sharedPref = getSharedPreferences(null, Context.MODE_PRIVATE);

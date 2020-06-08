@@ -1,19 +1,10 @@
 package com.jimzrt.umsmounter.fragments;
 
 import android.app.AlertDialog;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +14,16 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.jimzrt.umsmounter.R;
 import com.jimzrt.umsmounter.activities.MainActivity;
@@ -68,7 +69,6 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
     private RecyclerView listView = null;
     private ImageListAdapter listViewAdapter = null;
     private Spinner usbMode = null;
-    private ArrayAdapter<String> usbModeAdapter = null;
     private boolean populate;
     private String functionMode = "mtp,adb";
     private Fetch mainFetch;
@@ -146,7 +146,7 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
 
         usbMode = view.findViewById(R.id.spinner);
 
-        usbModeAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item,
+        ArrayAdapter<String> usbModeAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item,
                 new ArrayList<>());
 
 
@@ -193,22 +193,22 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
         statusText.setTextColor(Color.LTGRAY);
 
 
-        model.getSelected().observe(this, image -> listViewAdapter.setSelectedItem(image));
-        model.getDownloading().observe(this, image -> {
+        model.getSelected().observe(getViewLifecycleOwner(), image -> listViewAdapter.setSelectedItem(image));
+        model.getDownloading().observe(getViewLifecycleOwner(), image -> {
             Log.i("lala", "position: " + listViewAdapter.getPositionOfItem(image));
             listViewAdapter.notifyItemChanged(listViewAdapter.getPositionOfItem(image), "download");
         });
-        model.getRemoved().observe(this, image -> {
+        model.getRemoved().observe(getViewLifecycleOwner(), image -> {
             Log.i("lala", "REMOVEDDD");
             File file = new File(image.getUserPath());
             file.delete();
             listViewAdapter.remove(image);
         });
-        model.getAdded().observe(this, image -> {
+        model.getAdded().observe(getViewLifecycleOwner(), image -> {
             Log.i("lala", "ADDEDDD");
             listView.smoothScrollToPosition(listViewAdapter.addItem(image));
         });
-        model.getMounted().observe(this, image -> {
+        model.getMounted().observe(getViewLifecycleOwner(), image -> {
             if (image.getMounted()) {
                 Log.i("lala", "Mounted");
                 statusText.setText(image.getName() + " mounted");
@@ -447,12 +447,12 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
 
             @Override
             public void onWaitingNetwork(@NotNull Download download) {
-
+                getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Waiting for Network!", Toast.LENGTH_SHORT).show());
             }
 
             @Override
             public void onStarted(@NotNull Download download, @NotNull List<? extends DownloadBlock> list, int i) {
-
+                getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Download started!", Toast.LENGTH_SHORT).show());
             }
 
             @Override
@@ -527,7 +527,15 @@ public class MainFragment extends Fragment implements ImageListAdapter.OnImageLi
 
             @Override
             public void onCancelled(@NotNull Download download) {
+                model.remove(imageItem);
 
+                getActivity().runOnUiThread(() -> {
+                    File file = new File(imageItem.getUserPath());
+                    file.delete();
+                    Toast.makeText(getContext(), "Deleted!", Toast.LENGTH_SHORT).show();
+                    mainFetch.removeListener(this);
+                    mainFetch.remove(download.getId());
+                });
             }
 
             @Override
